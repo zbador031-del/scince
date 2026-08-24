@@ -936,3 +936,187 @@ video {
         flex-basis: 34px;
     }
 }
+
+/* صفحات الصفوف والشعب */
+
+.classroom-summary {
+    margin-bottom: 2.5rem;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+
+.summary-item {
+    min-height: 120px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+}
+
+
+.summary-item span {
+    color: var(--text-soft);
+    font-size: 0.9rem;
+}
+
+
+.summary-item strong {
+    margin-top: 0.25rem;
+    color: var(--primary-dark);
+    font-size: 1.3rem;
+}
+
+
+.classroom-section {
+    margin-top: 3rem;
+}
+
+
+.subject-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+
+.subject-item {
+    padding: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+}
+
+
+.subject-item .feature-icon {
+    flex: 0 0 54px;
+    margin: 0;
+}
+
+
+.subject-item strong {
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+}
+
+
+.subject-item p {
+    margin: 0.2rem 0 0;
+    color: var(--text-soft);
+}
+
+
+/* جدول البيانات */
+
+.data-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-small);
+}
+
+
+.data-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+
+.data-table th,
+.data-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    vertical-align: middle;
+}
+
+
+.data-table th {
+    background: var(--primary-dark);
+    color: white;
+    font-size: 0.92rem;
+}
+
+
+.data-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+
+.data-table tbody tr:hover {
+    background: var(--surface-soft);
+}
+
+
+.data-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+.status-badge {
+    width: fit-content;
+    padding: 0.25rem 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+
+.status-active {
+    background: #dcfce7;
+    color: var(--success);
+}
+
+
+.table-link {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+
+.table-link:hover,
+.table-link:focus-visible {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+
+/* توافق صفحات الشعب مع الجوال */
+
+@media (max-width: 900px) {
+    .classroom-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 620px) {
+    .classroom-summary,
+    .subject-list {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-item {
+        min-height: 95px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 0.75rem;
+        font-size: 0.88rem;
+    }
+}

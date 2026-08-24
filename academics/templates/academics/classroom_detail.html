@@ -1,0 +1,197 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+    {{ classroom }} | دفتر العلوم الذكي
+{% endblock %}
+
+
+{% block content %}
+    <div class="page-container">
+        <section class="dashboard-header">
+            <div>
+                <h1>
+                    الشعبة {{ classroom }}
+                </h1>
+
+                <p>
+                    {{ classroom.school.name }}
+                    —
+                    {{ classroom.academic_year.name }}
+                </p>
+            </div>
+
+            <div class="feature-icon" aria-hidden="true">
+                👩‍🎓
+            </div>
+        </section>
+
+        <section class="classroom-summary">
+            <article class="summary-item">
+                <span>الصف</span>
+
+                <strong>
+                    {{ classroom.grade_level.name }}
+                </strong>
+            </article>
+
+            <article class="summary-item">
+                <span>الشعبة</span>
+
+                <strong>
+                    {{ classroom.name }}
+                </strong>
+            </article>
+
+            <article class="summary-item">
+                <span>عدد الطالبات</span>
+
+                <strong>
+                    {{ enrollments|length }}
+                </strong>
+            </article>
+
+            <article class="summary-item">
+                <span>العام الدراسي</span>
+
+                <strong>
+                    {{ classroom.academic_year.name }}
+                </strong>
+            </article>
+        </section>
+
+        <section class="classroom-section">
+            <div class="page-heading">
+                <h2>المقررات والمعلمات</h2>
+
+                <p>
+                    المقررات المسندة إلى هذه الشعبة.
+                </p>
+            </div>
+
+            <div class="subject-list">
+                {% for assignment in teaching_assignments %}
+                    <article class="subject-item">
+                        <span class="feature-icon" aria-hidden="true">
+                            🔬
+                        </span>
+
+                        <div>
+                            <strong>
+                                {{ assignment.subject.name }}
+                            </strong>
+
+                            <p>
+                                المعلمة:
+                                {{ assignment.teacher.get_full_name|default:assignment.teacher.username }}
+                            </p>
+                        </div>
+                    </article>
+                {% empty %}
+                    <div class="message message-warning">
+                        لا توجد مقررات مسندة لهذه الشعبة.
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="classroom-section">
+            <div class="page-heading">
+                <h2>طالبات الشعبة</h2>
+
+                <p>
+                    الطالبات المسجلات حاليًا في الشعبة.
+                </p>
+            </div>
+
+            {% if enrollments %}
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">م</th>
+                                <th scope="col">اسم الطالبة</th>
+                                <th scope="col">اسم المستخدم</th>
+                                <th scope="col">الحالة</th>
+
+                                {% if request.user.is_staff %}
+                                    <th scope="col">الإدارة</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for enrollment in enrollments %}
+                                <tr>
+                                    <td>
+                                        {{ forloop.counter }}
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            {{ enrollment.student.get_full_name|default:enrollment.student.username }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {{ enrollment.student.username }}
+                                    </td>
+
+                                    <td>
+                                        <span class="status-badge status-active">
+                                            {{ enrollment.get_status_display }}
+                                        </span>
+                                    </td>
+
+                                    {% if request.user.is_staff %}
+                                        <td>
+                                            <a
+                                                class="table-link"
+                                                href="{% url 'admin:accounts_user_change' enrollment.student.id %}"
+                                            >
+                                                عرض الحساب
+                                            </a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <section class="auth-card">
+                    <div class="auth-heading">
+                        <div class="feature-icon" aria-hidden="true">
+                            📭
+                        </div>
+
+                        <h2>لا توجد طالبات مسجلات</h2>
+
+                        <p>
+                            أضيفي الطالبات إلى الشعبة
+                            من لوحة إدارة النظام.
+                        </p>
+                    </div>
+
+                    {% if request.user.is_staff %}
+                        <a
+                            class="button button-primary button-block"
+                            href="{% url 'admin:academics_enrollment_add' %}"
+                        >
+                            تسجيل طالبة في الشعبة
+                        </a>
+                    {% endif %}
+                </section>
+            {% endif %}
+        </section>
+
+        <div style="margin-top: 2rem;">
+            <a
+                class="button button-secondary"
+                href="{% url 'academics:teacher_classrooms' %}"
+            >
+                العودة إلى صفوفي وشعبي
+            </a>
+        </div>
+    </div>
+{% endblock %}

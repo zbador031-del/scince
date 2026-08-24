@@ -1,0 +1,110 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+    صفوفي وشعبي | دفتر العلوم الذكي
+{% endblock %}
+
+
+{% block content %}
+    <div class="page-container">
+        <section class="dashboard-header">
+            <div>
+                <h1>صفوفي وشعبي</h1>
+
+                <p>
+                    استعرضي الشعب والمقررات المسندة إلى حسابك
+                    والطالبات المسجلات في كل شعبة.
+                </p>
+            </div>
+
+            <div class="feature-icon" aria-hidden="true">
+                🏫
+            </div>
+        </section>
+
+        {% if assignments %}
+            <section aria-labelledby="classrooms-title">
+                <div class="page-heading">
+                    <h2 id="classrooms-title">
+                        الشعب المسندة
+                    </h2>
+
+                    <p>
+                        اختاري الشعبة لعرض الطالبات
+                        والمقررات المرتبطة بها.
+                    </p>
+                </div>
+
+                <div class="dashboard-grid">
+                    {% for assignment in assignments %}
+                        <article class="dashboard-card">
+                            <div
+                                class="feature-icon"
+                                aria-hidden="true"
+                            >
+                                🔬
+                            </div>
+
+                            <h2>
+                                {{ assignment.classroom }}
+                            </h2>
+
+                            <p>
+                                <strong>المقرر:</strong>
+                                {{ assignment.subject.name }}
+                            </p>
+
+                            <p>
+                                <strong>العام الدراسي:</strong>
+                                {{ assignment.classroom.academic_year.name }}
+                            </p>
+
+                            <p>
+                                <strong>المدرسة:</strong>
+                                {{ assignment.classroom.school.name }}
+                            </p>
+
+                            {% if request.user.is_superuser %}
+                                <p>
+                                    <strong>المعلمة:</strong>
+                                    {{ assignment.teacher.get_full_name|default:assignment.teacher.username }}
+                                </p>
+                            {% endif %}
+
+                            <a
+                                class="button button-primary"
+                                href="{% url 'academics:classroom_detail' assignment.classroom.id %}"
+                            >
+                                عرض الشعبة والطالبات
+                            </a>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% else %}
+            <section class="auth-card">
+                <div class="auth-heading">
+                    <div class="feature-icon" aria-hidden="true">
+                        📭
+                    </div>
+
+                    <h2>لا توجد شعب مسندة</h2>
+
+                    <p>
+                        لم يتم إسناد أي شعبة ومقرر إلى حسابك حتى الآن.
+                    </p>
+                </div>
+
+                {% if request.user.is_staff %}
+                    <a
+                        class="button button-primary button-block"
+                        href="{% url 'admin:academics_teachingassignment_add' %}"
+                    >
+                        إضافة إسناد تدريس
+                    </a>
+                {% endif %}
+            </section>
+        {% endif %}
+    </div>
+{% endblock %}
