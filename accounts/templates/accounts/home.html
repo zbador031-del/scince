@@ -1,0 +1,203 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+    دفتر العلوم الذكي
+{% endblock %}
+
+
+{% block content %}
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    منصة تعليمية ذكية لمادة العلوم
+                </div>
+
+                <h1>
+                    أعمال علمية تصنعها
+                    <span>طالبات مبدعات</span>
+                </h1>
+
+                <p class="hero-description">
+                    دفتر إلكتروني متكامل يتيح للطالبة حفظ أعمالها
+                    ومطوياتها وصورها وفيديوهاتها ومشروعاتها العلمية،
+                    ويمنح المعلمة أدوات منظمة للتقييم والتغذية الراجعة
+                    وتحليل التقدم.
+                </p>
+
+                <div class="hero-actions">
+                    {% if request.user.is_authenticated %}
+                        <a
+                            class="button button-primary"
+                            href="{% url 'accounts:dashboard' %}"
+                        >
+                            الانتقال إلى لوحة التحكم
+                        </a>
+                    {% else %}
+                        <a
+                            class="button button-primary"
+                            href="{% url 'accounts:login' %}"
+                        >
+                            تسجيل الدخول
+                        </a>
+                    {% endif %}
+
+                    <a
+                        class="button button-secondary"
+                        href="#features"
+                    >
+                        استكشاف مميزات الدفتر
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-visual" aria-label="رمز العلوم">
+                <div class="science-symbol" aria-hidden="true">
+                    🔬
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- استعلام ولي الأمر -->
+<a
+    class="parent-inquiry-card"
+    href="https://script.google.com/macros/s/AKfycbwJ4ki8mvE9u0HKRmDf3CKQVZVQTMtMtvo5lfO4dUvxfJ_FSU1ixsrLKYqz1APjcKnP/exec"
+    target="_blank"
+    rel="noopener noreferrer"
+>            >
+                <span
+                    class="parent-inquiry-icon"
+                    aria-hidden="true"
+                >
+                    👨‍👩‍👧
+                </span>
+
+                <span class="parent-inquiry-content">
+                    <strong>
+                        استعلام ولي الأمر عن مستوى ابنته
+                    </strong>
+
+                    <small>
+                        اضغط هنا للاطلاع على المستوى الدراسي
+                        والتقييمات ومؤشرات المتابعة
+                    </small>
+                </span>
+
+                <span
+                    class="parent-inquiry-arrow"
+                    aria-hidden="true"
+                >
+                    ←
+                </span>
+            </a>
+        </div>
+    </section>
+
+    <section id="features" class="section section-soft">
+        <div class="section-container">
+            <div class="section-heading">
+                <h2>دفتر واحد يجمع رحلة التعلم كاملة</h2>
+
+                <p>
+                    تنظيم الأعمال العلمية وتوثيقها وتقييمها
+                    في بيئة تعليمية آمنة وسهلة الاستخدام.
+                </p>
+            </div>
+
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📚
+                    </div>
+
+                    <h3>دفتر خاص لكل طالبة</h3>
+
+                    <p>
+                        حفظ أعمال الطالبة وتنظيمها حسب الصف
+                        والوحدة والدرس والفصل الدراسي.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📎
+                    </div>
+
+                    <h3>ملفات متعددة</h3>
+
+                    <p>
+                        رفع الصور والمطويات والمستندات والعروض
+                        والفيديوهات والتسجيلات الصوتية.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        ✅
+                    </div>
+
+                    <h3>تقييم منظم</h3>
+
+                    <p>
+                        تقييم الأعمال باستخدام سلالم تقدير واضحة
+                        وتغذية راجعة مكتوبة أو صوتية.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        🤖
+                    </div>
+
+                    <h3>خصائص ذكية</h3>
+
+                    <p>
+                        تحليل الأعمال واقتراح التغذية الراجعة
+                        والأنشطة العلاجية والإثرائية.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📊
+                    </div>
+
+                    <h3>مؤشرات تقدم</h3>
+
+                    <p>
+                        متابعة نسب الإنجاز والإتقان والأعمال
+                        المتأخرة وتطور أداء الطالبة.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        🏅
+                    </div>
+
+                    <h3>تحفيز وتميز</h3>
+
+                    <p>
+                        منح الشارات وعرض الأعمال المتميزة
+                        وتشجيع الإبداع والابتكار العلمي.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-container">
+            <div class="section-heading">
+                <h2>رحلة تعلم موثقة وآمنة</h2>
+
+                <p>
+                    تحتفظ الطالبة بنسخ أعمالها وتطويراتها،
+                    بينما تتابع المعلمة التقدم وتقدم الدعم المناسب.
+                </p>
+            </div>
+        </div>
+    </section>
+{% endblock %}

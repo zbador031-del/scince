@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class IntelligenceConfig(AppConfig):
-    name = 'intelligence'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "intelligence"
+    verbose_name = "الذكاء والتحليلات"

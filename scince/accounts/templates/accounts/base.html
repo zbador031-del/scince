@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="دفتر العلوم الذكي لإدارة وعرض وتقييم أعمال الطالبات"
+    >
+
+    <title>
+        {% block title %}
+            دفتر العلوم الذكي
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'accounts/css/main.css' %}"
+    >
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <a class="skip-link" href="#main-content">
+        الانتقال إلى المحتوى
+    </a>
+
+    <header class="main-header">
+        <div class="header-container">
+            <a
+                class="brand"
+                href="{% url 'accounts:home' %}"
+                aria-label="العودة إلى الصفحة الرئيسية"
+            >
+                <span class="brand-icon" aria-hidden="true">🔬</span>
+
+                <span class="brand-text">
+                    <strong>دفتر العلوم الذكي</strong>
+                    <small>أعمال علمية تصنعها طالبات مبدعات</small>
+                </span>
+            </a>
+
+            <nav class="main-navigation" aria-label="القائمة الرئيسية">
+                <a href="{% url 'accounts:home' %}">
+                    الرئيسية
+                </a>
+
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'accounts:dashboard' %}">
+                        لوحة التحكم
+                    </a>
+
+                    {% if request.user.is_staff %}
+                        <a href="{% url 'admin:index' %}">
+                            إدارة النظام
+                        </a>
+                    {% endif %}
+
+                    <form
+                        class="logout-form"
+                        method="post"
+                        action="{% url 'accounts:logout' %}"
+                    >
+                        {% csrf_token %}
+
+                        <button type="submit" class="navigation-button">
+                            تسجيل الخروج
+                        </button>
+                    </form>
+                {% else %}
+                    <a
+                        class="navigation-login"
+                        href="{% url 'accounts:login' %}"
+                    >
+                        تسجيل الدخول
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    {% if messages %}
+        <section class="messages-container" aria-label="رسائل النظام">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </section>
+    {% endif %}
+
+    <main id="main-content" class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div>
+                <strong>دفتر العلوم الذكي</strong>
+                <p>
+                    الابتدائية السادسة والثلاثون بخميس مشيط
+                </p>
+            </div>
+
+            <div class="footer-credit">
+                <p>
+                    تصميم وإعداد المعلمة /
+                    بدرية محمد الزهراني
+                </p>
+
+                <p>
+                    مديرة المدرسة /
+                    نورة الرفاعي
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'accounts/js/main.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

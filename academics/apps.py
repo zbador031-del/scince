@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class AcademicsConfig(AppConfig):
-    name = 'academics'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "academics"
+    verbose_name = "الإدارة الأكاديمية"

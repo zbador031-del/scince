@@ -1,0 +1,163 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+    دفتري العلمي | دفتر العلوم الذكي
+{% endblock %}
+
+
+{% block content %}
+    <div class="page-container">
+        <section class="dashboard-header">
+            <div>
+                <h1>
+                    أهلًا بالعالمة الصغيرة،
+                    {{ request.user.get_full_name|default:request.user.username }}
+                </h1>
+
+                <p>
+                    هنا يمكنك إضافة أعمالك العلمية ومتابعة
+                    تقييماتك وإنجازاتك.
+                </p>
+            </div>
+
+            <div class="feature-icon" aria-hidden="true">
+                👩‍🔬
+            </div>
+        </section>
+
+        <section aria-labelledby="student-tools-title">
+            <div class="page-heading">
+                <h2 id="student-tools-title">
+                    دفتري العلمي
+                </h2>
+
+                <p>
+                    جميع أعمالك وأنشطتك وإنجازاتك في مكان واحد.
+                </p>
+            </div>
+
+            <div class="dashboard-grid">
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📘
+                    </div>
+
+                    <h2>دفتر العلوم</h2>
+
+                    <p>
+                        استعرضي أعمالك العلمية المنظمة
+                        حسب الوحدات والدروس.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📤
+                    </div>
+
+                    <h2>رفع عمل جديد</h2>
+
+                    <p>
+                        أضيفي مطوية أو صورة أو مستندًا
+                        أو عرضًا أو فيديو علميًا.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📝
+                    </div>
+
+                    <h2>الأنشطة المطلوبة</h2>
+
+                    <p>
+                        تابعي الأنشطة الحالية ومواعيد
+                        التسليم والتعليمات.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        💬
+                    </div>
+
+                    <h2>تغذية المعلمة الراجعة</h2>
+
+                    <p>
+                        اطلعي على ملاحظات المعلمة
+                        وطوري أعمالك وأعيدي تسليمها.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        🏅
+                    </div>
+
+                    <h2>شاراتي وإنجازاتي</h2>
+
+                    <p>
+                        شاهدي الشارات التي حصلتِ عليها
+                        والأعمال المصنفة متميزة.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📈
+                    </div>
+
+                    <h2>تقدمي العلمي</h2>
+
+                    <p>
+                        تابعي نسبة إنجازك ومستوى إتقانك
+                        وتطور أدائك خلال الفصل.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+            </div>
+        </section>
+    </div>
+{% endblock %}

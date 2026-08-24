@@ -1,0 +1,164 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+    متابعة الطالبة | دفتر العلوم الذكي
+{% endblock %}
+
+
+{% block content %}
+    <div class="page-container">
+        <section class="dashboard-header">
+            <div>
+                <h1>
+                    مرحبًا،
+                    {{ request.user.get_full_name|default:request.user.username }}
+                </h1>
+
+                <p>
+                    تابع أعمال الطالبة وتقييماتها
+                    وتقدمها في مادة العلوم.
+                </p>
+            </div>
+
+            <div class="feature-icon" aria-hidden="true">
+                👨‍👩‍👧
+            </div>
+        </section>
+
+        <section aria-labelledby="parent-tools-title">
+            <div class="page-heading">
+                <h2 id="parent-tools-title">
+                    متابعة رحلة التعلم
+                </h2>
+
+                <p>
+                    عرض آمن ومختصر لأعمال الطالبة
+                    وإنجازاتها وتغذية المعلمة الراجعة.
+                </p>
+            </div>
+
+            <div class="dashboard-grid">
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📚
+                    </div>
+
+                    <h2>دفتر الطالبة</h2>
+
+                    <p>
+                        استعراض الأعمال العلمية والمطويات
+                        والمشروعات المعتمدة.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        ✅
+                    </div>
+
+                    <h2>التقييمات</h2>
+
+                    <p>
+                        الاطلاع على الدرجات وسلالم التقدير
+                        والتغذية الراجعة.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        📊
+                    </div>
+
+                    <h2>مؤشرات التقدم</h2>
+
+                    <p>
+                        متابعة نسبة الإنجاز والإتقان
+                        والأعمال المكتملة والمتأخرة.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        🏅
+                    </div>
+
+                    <h2>الإنجازات والشارات</h2>
+
+                    <p>
+                        مشاهدة الشارات والأعمال المتميزة
+                        التي حققتها الطالبة.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        💡
+                    </div>
+
+                    <h2>التوصيات التعليمية</h2>
+
+                    <p>
+                        عرض التوصيات العلاجية والإثرائية
+                        المعتمدة من المعلمة.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="feature-icon" aria-hidden="true">
+                        ✉️
+                    </div>
+
+                    <h2>التواصل مع المعلمة</h2>
+
+                    <p>
+                        إرسال استفسار أو ملاحظة مرتبطة
+                        بتقدم الطالبة.
+                    </p>
+
+                    <span
+                        class="button button-secondary"
+                        aria-disabled="true"
+                    >
+                        سيتم التفعيل
+                    </span>
+                </article>
+            </div>
+        </section>
+    </div>
+{% endblock %}

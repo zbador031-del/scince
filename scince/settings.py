@@ -2,30 +2,30 @@ import os
 from pathlib import Path
 
 
-# مسار المشروع الأساسي
+# المسار الأساسي للمشروع
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # مفتاح الحماية
-# المفتاح الافتراضي التالي مخصص للتطوير المحلي فقط
+# القيمة الافتراضية التالية للتطوير المحلي فقط
 SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-development-key-change-before-production",
 )
 
 
-# وضع التطوير
+# وضع التطوير المحلي
 DEBUG = True
 
 
-# النطاقات المسموح بها أثناء التطوير
+# النطاقات المسموح بها محليًا
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
 ]
 
 
-# تطبيقات المشروع
+# التطبيقات المثبتة
 INSTALLED_APPS = [
     # تطبيقات Django الأساسية
     "django.contrib.admin",
@@ -36,12 +36,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # تطبيقات دفتر العلوم الذكي
-    "accounts",
-    "academics",
-    "activities",
-    "portfolios",
-    "assessment",
-    "intelligence",
+    "accounts.apps.AccountsConfig",
+    "academics.apps.AcademicsConfig",
+    "activities.apps.ActivitiesConfig",
+    "portfolios.apps.PortfoliosConfig",
+    "assessment.apps.AssessmentConfig",
+    "intelligence.apps.IntelligenceConfig",
 ]
 
 
@@ -135,18 +135,28 @@ LANGUAGE_CODE = "ar"
 TIME_ZONE = "Asia/Riyadh"
 
 
-# تفعيل الترجمة والتوقيت الزمني
+# الترجمة والتوقيت
 USE_I18N = True
 USE_TZ = True
 
 
-# الملفات الثابتة
-STATIC_URL = "static/"
+# الملفات الثابتة مثل CSS وJavaScript
+STATIC_URL = "/static/"
+
+
+# الملفات المرفوعة مثل الصور والفيديوهات والمستندات
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # نوع المفتاح الأساسي الافتراضي
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# عرض رسائل البريد داخل الطرفية أثناء التطوير
+# عرض رسائل البريد داخل PowerShell أثناء التطوير
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# إعدادات تسجيل الدخول والخروج
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "accounts:dashboard"
+LOGOUT_REDIRECT_URL = "accounts:home"

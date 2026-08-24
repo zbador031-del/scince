@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class PortfoliosConfig(AppConfig):
-    name = 'portfolios'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "portfolios"
+    verbose_name = "دفاتر الطالبات"
