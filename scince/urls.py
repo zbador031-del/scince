@@ -1,7 +1,5 @@
-"""
-URL configuration for scince project.
-"""
-
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
@@ -13,18 +11,26 @@ urlpatterns = [
     # الصفحة الرئيسية والحسابات
     path("", include("accounts.urls")),
 
-    # الهيكل الدراسي والصفوف
+    # الإدارة الأكاديمية
     path("academics/", include("academics.urls")),
 
-    # الأنشطة والأعمال المطلوبة
+    # الأنشطة التعليمية
     path("activities/", include("activities.urls")),
 
-    # دفاتر الطالبات
+    # دفاتر الطالبات والأعمال
     path("portfolios/", include("portfolios.urls")),
 
     # التقييم والتغذية الراجعة
     path("assessment/", include("assessment.urls")),
 
-    # الذكاء الاصطناعي والتحليلات
+    # أدوات الذكاء الاصطناعي
     path("intelligence/", include("intelligence.urls")),
 ]
+
+
+# عرض الملفات المرفوعة محليًا أثناء التطوير فقط
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT,
+    )

@@ -1,0 +1,288 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+دفتري العلمي | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container">
+
+    {% if messages %}
+        <div class="page-messages">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+    <section class="portfolio-header">
+        <div>
+            <span class="portfolio-label">
+                📘 دفتر الطالبة
+            </span>
+
+            <h1>{{ portfolio.title }}</h1>
+
+            <p>
+                {{ request.user.get_full_name|default:request.user.username }}
+                —
+                {{ portfolio.classroom }}
+                —
+                {{ portfolio.subject }}
+            </p>
+        </div>
+
+        <a
+            href="{% url 'portfolios:upload_submission' %}"
+            class="button button-primary"
+        >
+            رفع عمل جديد
+        </a>
+    </section>
+
+
+    {% if portfolio.introduction %}
+        <section class="portfolio-info-card">
+            <h2>نبذة عني</h2>
+
+            <p>
+                {{ portfolio.introduction|linebreaksbr }}
+            </p>
+        </section>
+    {% endif %}
+
+
+    {% if portfolio.learning_goals %}
+        <section class="portfolio-info-card">
+            <h2>أهدافي العلمية</h2>
+
+            <p>
+                {{ portfolio.learning_goals|linebreaksbr }}
+            </p>
+        </section>
+    {% endif %}
+
+
+    <section class="portfolio-works">
+
+        <div class="page-heading">
+            <div>
+                <h2>أعمالي العلمية</h2>
+
+                <p>
+                    المطويات والصور والمستندات والعروض
+                    والفيديوهات التي رفعتها.
+                </p>
+            </div>
+
+            <span class="works-count">
+                {{ submissions|length }} عمل
+            </span>
+        </div>
+
+
+        {% if submissions %}
+            <div class="submission-grid">
+
+                {% for submission in submissions %}
+                    <article class="submission-card">
+
+                        <div class="submission-card-header">
+                            <div>
+                                <h3>{{ submission.title }}</h3>
+
+                                {% if submission.section %}
+                                    <span class="submission-section">
+                                        {{ submission.section.title }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <span
+                                class="submission-status
+                                status-{{ submission.status }}"
+                            >
+                                {{ submission.get_status_display }}
+                            </span>
+                        </div>
+
+
+                        {% if submission.description %}
+                            <p class="submission-description">
+                                {{ submission.description|linebreaksbr }}
+                            </p>
+                        {% endif %}
+
+
+                        {% for version in submission.versions.all %}
+                            {% if version.is_current %}
+
+                                {% if version.reflection %}
+                                    <div class="student-reflection">
+                                        <strong>ماذا تعلمت؟</strong>
+
+                                        <p>
+                                            {{ version.reflection|linebreaksbr }}
+                                        </p>
+                                    </div>
+                                {% endif %}
+
+
+                                {% if version.ai_used %}
+                                    <div class="ai-disclosure">
+                                        <strong>
+                                            ✨ استخدام الذكاء الاصطناعي
+                                        </strong>
+
+                                        <p>
+                                            الأداة:
+                                            {{ version.ai_tools }}
+                                        </p>
+
+                                        <p>
+                                            {{ version.ai_usage_description|linebreaksbr }}
+                                        </p>
+                                    </div>
+                                {% endif %}
+
+
+                                <div class="attachment-list">
+                                    {% for attachment in version.attachments.all %}
+                                        <a
+                                            href="{{ attachment.file.url }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="attachment-item"
+                                        >
+                                            <span class="attachment-icon">
+                                                {% if attachment.media_type == "image" %}
+                                                    🖼️
+                                                {% elif attachment.media_type == "video" %}
+                                                    🎬
+                                                {% elif attachment.media_type == "audio" %}
+                                                    🎧
+                                                {% elif attachment.media_type == "presentation" %}
+                                                    📊
+                                                {% else %}
+                                                    📄
+                                                {% endif %}
+                                            </span>
+
+                                            <span>
+                                                <strong>
+                                                    {{ attachment.original_filename }}
+                                                </strong>
+
+                                                <small>
+                                                    {{ attachment.size_bytes|filesizeformat }}
+                                                </small>
+                                            </span>
+                                        </a>
+                                    {% empty %}
+                                        <p>لا يوجد ملف مرفق.</p>
+                                    {% endfor %}
+                                </div>
+
+
+                                <!-- نتيجة تقييم المعلمة -->
+                                {% if version.evaluation %}
+                                    {% if version.evaluation.status != "draft" %}
+                                        <section class="student-evaluation-card">
+
+                                            <div class="student-evaluation-heading">
+                                                <div>
+                                                    <span class="evaluation-icon">
+                                                        ✅
+                                                    </span>
+
+                                                    <h4>تقييم المعلمة</h4>
+                                                </div>
+
+                                                <strong class="student-score">
+                                                    {{ version.evaluation.total_score }}
+                                                    من 20
+                                                </strong>
+                                            </div>
+
+                                            {% if version.evaluation.general_feedback %}
+                                                <div class="student-feedback">
+                                                    <strong>
+                                                        التغذية الراجعة
+                                                    </strong>
+
+                                                    <p>
+                                                        {{ version.evaluation.general_feedback|linebreaksbr }}
+                                                    </p>
+                                                </div>
+                                            {% endif %}
+
+                                            {% if version.evaluation.status == "revision_required" %}
+                                                <div class="revision-required-notice">
+                                                    <strong>
+                                                        ✏️ يحتاج العمل إلى تعديل
+                                                    </strong>
+
+                                                    <p>
+                                                        راجعي ملاحظات المعلمة،
+                                                        ثم جهزي نسخة محسنة من العمل.
+                                                    </p>
+                                                </div>
+                                            {% elif submission.is_featured %}
+                                                <div class="featured-work-notice">
+                                                    🏅 تم تصنيف هذا العمل متميزًا
+                                                </div>
+                                            {% else %}
+                                                <div class="approved-work-notice">
+                                                    🌟 تم اعتماد العمل
+                                                </div>
+                                            {% endif %}
+
+                                        </section>
+                                    {% endif %}
+                                {% endif %}
+
+                            {% endif %}
+                        {% endfor %}
+
+
+                        <footer class="submission-card-footer">
+                            <span>
+                                رُفع في
+                                {{ submission.created_at|date:"Y/m/d" }}
+                            </span>
+
+                            {% if submission.is_featured %}
+                                <strong>🏅 عمل متميز</strong>
+                            {% endif %}
+                        </footer>
+
+                    </article>
+                {% endfor %}
+
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <span>📂</span>
+
+                <h3>لم ترفعي أي عمل بعد</h3>
+
+                <p>
+                    ابدئي بإضافة أول مطوية أو صورة أو ملف
+                    أو فيديو إلى دفتر العلوم.
+                </p>
+
+                <a
+                    href="{% url 'portfolios:upload_submission' %}"
+                    class="button button-primary"
+                >
+                    رفع أول عمل
+                </a>
+            </div>
+        {% endif %}
+
+    </section>
+</main>
+{% endblock %}

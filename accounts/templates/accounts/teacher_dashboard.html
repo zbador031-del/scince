@@ -2,179 +2,201 @@
 
 
 {% block title %}
-    لوحة المعلمة | دفتر العلوم الذكي
+لوحة المعلمة | دفتر العلوم الذكي
 {% endblock %}
 
 
 {% block content %}
-    <div class="page-container">
-        <section class="dashboard-header">
-            <div>
-                <h1>
-                    مرحبًا،
-                    {{ request.user.get_full_name|default:request.user.username }}
-                </h1>
+<div class="page-container">
+
+    <section class="dashboard-header">
+        <div>
+            <h1>
+                مرحبًا،
+                {{ request.user.get_full_name|default:request.user.username }}
+            </h1>
+
+            <p>
+                من هنا يمكنك متابعة صفوفك وأنشطة الطالبات
+                ودفاترهن وتقييم أعمالهن.
+            </p>
+        </div>
+
+        <div class="feature-icon" aria-hidden="true">
+            👩‍🏫
+        </div>
+    </section>
+
+
+    <section aria-labelledby="teacher-tools-title">
+
+        <div class="page-heading">
+            <h2 id="teacher-tools-title">
+                أدوات المعلمة
+            </h2>
+
+            <p>
+                اختاري الأداة التي ترغبين في استخدامها.
+            </p>
+        </div>
+
+
+        <div class="dashboard-grid">
+
+            <!-- الصفوف والشعب -->
+            <article class="dashboard-card">
+                <div class="feature-icon" aria-hidden="true">
+                    🏫
+                </div>
+
+                <h2>صفوفي وشعبي</h2>
 
                 <p>
-                    من هنا يمكنك متابعة صفوفك وأنشطة الطالبات
-                    ودفاترهن وتقييم أعمالهن.
+                    استعراض الصفوف والشعب والطالبات
+                    المسندة إلى حسابك.
                 </p>
-            </div>
 
-            <div class="feature-icon" aria-hidden="true">
-                👩‍🏫
-            </div>
-        </section>
+                <div class="dashboard-card-actions">
+                    <a
+                        class="button button-primary"
+                        href="{% url 'academics:teacher_classrooms' %}"
+                    >
+                        عرض صفوفي وشعبي
+                    </a>
 
-        <section aria-labelledby="teacher-tools-title">
-            <div class="page-heading">
-                <h2 id="teacher-tools-title">
-                    أدوات المعلمة
-                </h2>
+                    <a
+                        class="button button-secondary"
+                        href="{% url 'accounts:bulk_create_students' %}"
+                    >
+                        إنشاء حسابات الطالبات
+                    </a>
+                </div>
+            </article>
+
+
+            <!-- الأنشطة التعليمية -->
+            <article class="dashboard-card">
+                <div class="feature-icon" aria-hidden="true">
+                    📝
+                </div>
+
+                <h2>الأنشطة التعليمية</h2>
 
                 <p>
-                    اختاري الأداة التي ترغبين في استخدامها.
+                    إنشاء المطويات والمشروعات والتجارب
+                    والأعمال العلمية المطلوبة.
                 </p>
-            </div>
 
-            <div class="dashboard-grid">
-                <article class="dashboard-card">
-                    <div class="feature-icon" aria-hidden="true">
-                        🏫
-                    </div>
+                <span
+                    class="button button-secondary"
+                    aria-disabled="true"
+                >
+                    سيتم التفعيل
+                </span>
+            </article>
 
-                    <h2>صفوفي وشعبي</h2>
 
-                    <p>
-                        استعراض الصفوف والشعب والطالبات
-                        المسندة إلى حسابك.
-                    </p>
+            <!-- دفاتر الطالبات -->
+            <article class="dashboard-card">
+                <div class="feature-icon" aria-hidden="true">
+                    📚
+                </div>
+
+                <h2>أعمال الطالبات</h2>
+
+                <p>
+                    تصفح الأعمال والملفات والصور
+                    والفيديوهات التي رفعتها الطالبات.
+                </p>
+
+                <a
+                    class="button button-primary"
+                    href="{% url 'portfolios:teacher_submissions' %}"
+                >
+                    فتح أعمال الطالبات
+                </a>
+            </article>
+
+
+            <!-- التقييم -->
+            <article class="dashboard-card">
+                <div class="feature-icon" aria-hidden="true">
+                    ✅
+                </div>
+
+                <h2>التقييم</h2>
+
+                <p>
+                    تقييم الأعمال وإضافة الدرجات
+                    والتغذية الراجعة والشارات.
+                </p>
+
+                <a
+                    class="button button-secondary"
+                    href="{% url 'portfolios:teacher_submissions' %}"
+                >
+                    اختيار عمل للتقييم
+                </a>
+            </article>
+
+
+            <!-- المؤشرات -->
+            <article class="dashboard-card">
+                <div class="feature-icon" aria-hidden="true">
+                    📊
+                </div>
+
+                <h2>المؤشرات والتحليلات</h2>
+
+                <p>
+                    متابعة نسب الإنجاز والإتقان
+                    وتطور أداء الطالبات.
+                </p>
 
 <a
     class="button button-primary"
-    href="{% url 'academics:teacher_classrooms' %}"
+    href="{% url 'intelligence:teacher_analytics' %}"
 >
-    عرض صفوفي وشعبي
-</a>س                </article>
-
-<a
-    class="button button-secondary"
-    href="{% url 'accounts:bulk_create_students' %}"
->
-    إنشاء حسابات الطالبات
+    فتح المؤشرات والتحليلات
 </a>
+            </article>
 
-                <article class="dashboard-card">
-                    <div class="feature-icon" aria-hidden="true">
-                        📝
-                    </div>
 
-                    <h2>الأنشطة التعليمية</h2>
+            <!-- المساعد الذكي -->
+            <article class="dashboard-card">
+                <div class="feature-icon" aria-hidden="true">
+                    🤖
+                </div>
 
-                    <p>
-                        إنشاء المطويات والمشروعات والتجارب
-                        والأعمال العلمية المطلوبة.
-                    </p>
+                <h2>المساعد الذكي</h2>
 
-                    <span
-                        class="button button-secondary"
-                        aria-disabled="true"
-                    >
-                        سيتم التفعيل
-                    </span>
-                </article>
+                <p>
+                    تحليل الأعمال واقتراح التغذية الراجعة
+                    والأنشطة العلاجية والإثرائية.
+                </p>
 
-                <article class="dashboard-card">
-                    <div class="feature-icon" aria-hidden="true">
-                        📚
-                    </div>
-
-                    <h2>دفاتر الطالبات</h2>
-
-                    <p>
-                        تصفح دفاتر الطالبات ومتابعة الأعمال
-                        والملفات المرفوعة.
-                    </p>
-
-                    <span
-                        class="button button-secondary"
-                        aria-disabled="true"
-                    >
-                        سيتم التفعيل
-                    </span>
-                </article>
-
-                <article class="dashboard-card">
-                    <div class="feature-icon" aria-hidden="true">
-                        ✅
-                    </div>
-
-                    <h2>التقييم</h2>
-
-                    <p>
-                        تقييم الأعمال وإضافة الدرجات
-                        والتغذية الراجعة والشارات.
-                    </p>
-
-                    <span
-                        class="button button-secondary"
-                        aria-disabled="true"
-                    >
-                        سيتم التفعيل
-                    </span>
-                </article>
-
-                <article class="dashboard-card">
-                    <div class="feature-icon" aria-hidden="true">
-                        📊
-                    </div>
-
-                    <h2>المؤشرات والتحليلات</h2>
-
-                    <p>
-                        متابعة نسب الإنجاز والإتقان
-                        وتطور أداء الطالبات.
-                    </p>
-
-                    <span
-                        class="button button-secondary"
-                        aria-disabled="true"
-                    >
-                        سيتم التفعيل
-                    </span>
-                </article>
-
-                <article class="dashboard-card">
-                    <div class="feature-icon" aria-hidden="true">
-                        🤖
-                    </div>
-
-                    <h2>المساعد الذكي</h2>
-
-                    <p>
-                        تحليل الأعمال واقتراح التغذية الراجعة
-                        والأنشطة العلاجية والإثرائية.
-                    </p>
-
-                    <span
-                        class="button button-secondary"
-                        aria-disabled="true"
-                    >
-                        سيتم التفعيل
-                    </span>
-                </article>
-            </div>
-        </section>
-
-        {% if request.user.is_staff %}
-            <section style="margin-top: 2rem;">
-                <a
-                    class="button button-primary"
-                    href="{% url 'admin:index' %}"
+                <span
+                    class="button button-secondary"
+                    aria-disabled="true"
                 >
-                    فتح لوحة إدارة النظام
-                </a>
-            </section>
-        {% endif %}
-    </div>
+                    سيتم التفعيل
+                </span>
+            </article>
+
+        </div>
+    </section>
+
+
+    {% if request.user.is_staff %}
+        <section class="admin-access-section">
+            <a
+                class="button button-primary"
+                href="{% url 'admin:index' %}"
+            >
+                فتح لوحة إدارة النظام
+            </a>
+        </section>
+    {% endif %}
+
+</div>
 {% endblock %}

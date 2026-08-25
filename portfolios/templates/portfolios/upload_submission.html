@@ -1,0 +1,195 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+رفع عمل جديد | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container">
+
+    <section class="upload-page-header">
+        <div>
+            <span class="portfolio-label">
+                📤 إضافة إلى الدفتر
+            </span>
+
+            <h1>رفع عمل علمي جديد</h1>
+
+            <p>
+                أضيفي مطوية أو صورة أو مستندًا أو عرضًا
+                أو فيديو إلى دفتر العلوم الخاص بكِ.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'portfolios:student_portfolio' %}"
+            class="button button-secondary"
+        >
+            العودة إلى دفتري
+        </a>
+    </section>
+
+    <section class="upload-form-card">
+
+        {% if form.non_field_errors %}
+            <div class="form-errors" role="alert">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+            class="submission-upload-form"
+        >
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">
+                    {{ form.title.label }}
+                </label>
+
+                {{ form.title }}
+
+                {% for error in form.title.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">
+                    {{ form.description.label }}
+                </label>
+
+                {{ form.description }}
+
+                {% for error in form.description.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="upload-form-grid">
+                <div class="form-group">
+                    <label for="{{ form.section.id_for_label }}">
+                        {{ form.section.label }}
+                    </label>
+
+                    {{ form.section }}
+
+                    {% for error in form.section.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.media_type.id_for_label }}">
+                        {{ form.media_type.label }}
+                    </label>
+
+                    {{ form.media_type }}
+
+                    {% for error in form.media_type.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group file-upload-group">
+                <label for="{{ form.file.id_for_label }}">
+                    {{ form.file.label }}
+                </label>
+
+                {{ form.file }}
+
+                {% if form.file.help_text %}
+                    <small class="form-help">
+                        {{ form.file.help_text }}
+                    </small>
+                {% endif %}
+
+                {% for error in form.file.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.caption.id_for_label }}">
+                    {{ form.caption.label }}
+                </label>
+
+                {{ form.caption }}
+
+                {% for error in form.caption.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.reflection.id_for_label }}">
+                    {{ form.reflection.label }}
+                </label>
+
+                {{ form.reflection }}
+
+                {% for error in form.reflection.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <fieldset class="ai-usage-fieldset">
+                <legend>
+                    ✨ الإفصاح عن استخدام الذكاء الاصطناعي
+                </legend>
+
+                <label class="checkbox-field">
+                    {{ form.ai_used }}
+                    <span>{{ form.ai_used.label }}</span>
+                </label>
+
+                {% for error in form.ai_used.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+
+                <div class="form-group">
+                    <label for="{{ form.ai_tools.id_for_label }}">
+                        {{ form.ai_tools.label }}
+                    </label>
+
+                    {{ form.ai_tools }}
+
+                    {% for error in form.ai_tools.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label
+                        for="{{ form.ai_usage_description.id_for_label }}"
+                    >
+                        {{ form.ai_usage_description.label }}
+                    </label>
+
+                    {{ form.ai_usage_description }}
+
+                    {% for error in form.ai_usage_description.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+            <div class="upload-security-notice">
+                <strong>تنبيه:</strong>
+                لا ترفعي ملفات تحتوي على بيانات شخصية أو كلمات مرور،
+                وتأكدي من صحة الملف قبل إرساله.
+            </div>
+
+            <button type="submit" class="button button-primary">
+                رفع العمل وإرساله للمعلمة
+            </button>
+        </form>
+
+    </section>
+</main>
+{% endblock %}

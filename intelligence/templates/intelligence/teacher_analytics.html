@@ -1,0 +1,363 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+المؤشرات والتحليلات | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container">
+
+    <section class="analytics-header">
+        <div>
+            <span class="portfolio-label">
+                📊 لوحة البيانات
+            </span>
+
+            <h1>المؤشرات والتحليلات</h1>
+
+            <p>
+                متابعة مشاركة الطالبات وإنجاز الأعمال
+                ونتائج التقييم حسب الفصول.
+            </p>
+        </div>
+
+        <div class="analytics-header-actions">
+            <a
+                href="{% url 'portfolios:teacher_submissions' %}"
+                class="button button-primary"
+            >
+                أعمال الطالبات
+            </a>
+
+            <a
+                href="{% url 'accounts:teacher_dashboard' %}"
+                class="button button-secondary"
+            >
+                لوحة المعلمة
+            </a>
+        </div>
+    </section>
+
+
+    <!-- المؤشرات الأساسية -->
+    <section class="analytics-summary-grid">
+
+        <article class="analytics-summary-card">
+            <span class="analytics-card-icon">👩‍🎓</span>
+            <strong>{{ total_students }}</strong>
+            <h2>إجمالي الطالبات</h2>
+            <p>الطالبات المسجلات في الشعب المسندة</p>
+        </article>
+
+        <article class="analytics-summary-card">
+            <span class="analytics-card-icon">📤</span>
+            <strong>{{ total_submissions }}</strong>
+            <h2>الأعمال المرفوعة</h2>
+            <p>جميع الأعمال المستلمة من الطالبات</p>
+        </article>
+
+        <article class="analytics-summary-card">
+            <span class="analytics-card-icon">✅</span>
+            <strong>{{ evaluated_submissions }}</strong>
+            <h2>الأعمال المقيمة</h2>
+            <p>الأعمال التي تم تقييمها ونشر نتيجتها</p>
+        </article>
+
+        <article class="analytics-summary-card">
+            <span class="analytics-card-icon">⏳</span>
+            <strong>{{ pending_submissions }}</strong>
+            <h2>بانتظار التقييم</h2>
+            <p>أعمال مسلمة أو قيد المراجعة</p>
+        </article>
+
+        <article class="analytics-summary-card">
+            <span class="analytics-card-icon">🌟</span>
+            <strong>{{ approved_submissions }}</strong>
+            <h2>أعمال معتمدة</h2>
+            <p>الأعمال المعتمدة والمتميزة</p>
+        </article>
+
+        <article class="analytics-summary-card">
+            <span class="analytics-card-icon">✏️</span>
+            <strong>{{ revision_submissions }}</strong>
+            <h2>تحتاج تعديلًا</h2>
+            <p>أعمال أُعيدت للطالبة للتحسين</p>
+        </article>
+
+        <article class="analytics-summary-card">
+            <span class="analytics-card-icon">🏅</span>
+            <strong>{{ featured_submissions }}</strong>
+            <h2>أعمال متميزة</h2>
+            <p>الأعمال المصنفة متميزة</p>
+        </article>
+
+        <article class="analytics-summary-card score-card">
+            <span class="analytics-card-icon">📈</span>
+            <strong>{{ average_score }}</strong>
+            <h2>متوسط التقييم</h2>
+            <p>متوسط الدرجات من 20</p>
+        </article>
+
+    </section>
+
+
+    <!-- مؤشرات الإنجاز والتقييم -->
+    <section class="analytics-rate-grid">
+
+        <article class="analytics-rate-card">
+            <div class="rate-card-heading">
+                <div>
+                    <h2>نسبة مشاركة الطالبات</h2>
+                    <p>
+                        {{ students_with_work }}
+                        من
+                        {{ total_students }}
+                        طالبة رفعت عملًا واحدًا على الأقل
+                    </p>
+                </div>
+
+                <strong>{{ completion_rate }}%</strong>
+            </div>
+
+            <progress
+                value="{{ completion_rate }}"
+                max="100"
+                aria-label="نسبة مشاركة الطالبات"
+            >
+                {{ completion_rate }}%
+            </progress>
+        </article>
+
+        <article class="analytics-rate-card">
+            <div class="rate-card-heading">
+                <div>
+                    <h2>نسبة إنجاز التقييم</h2>
+                    <p>
+                        {{ evaluated_submissions }}
+                        من
+                        {{ total_submissions }}
+                        عمل تم تقييمه
+                    </p>
+                </div>
+
+                <strong>{{ evaluation_rate }}%</strong>
+            </div>
+
+            <progress
+                value="{{ evaluation_rate }}"
+                max="100"
+                aria-label="نسبة إنجاز التقييم"
+            >
+                {{ evaluation_rate }}%
+            </progress>
+        </article>
+
+    </section>
+
+
+    <!-- توزيع حالات الأعمال -->
+    <section class="analytics-panel">
+        <div class="page-heading">
+            <div>
+                <h2>توزيع حالات الأعمال</h2>
+
+                <p>
+                    عدد ونسبة الأعمال في كل مرحلة
+                    من مراحل التسليم والتقييم.
+                </p>
+            </div>
+        </div>
+
+        <div class="status-analytics-list">
+            {% for item in status_analytics %}
+                <article class="status-analytics-row">
+                    <div class="status-analytics-label">
+                        <span
+                            class="status-dot
+                            status-dot-{{ item.value }}"
+                        ></span>
+
+                        <strong>{{ item.label }}</strong>
+                    </div>
+
+                    <div class="status-progress-wrapper">
+                        <progress
+                            value="{{ item.percentage }}"
+                            max="100"
+                            aria-label="{{ item.label }}"
+                        >
+                            {{ item.percentage }}%
+                        </progress>
+                    </div>
+
+                    <div class="status-analytics-value">
+                        <strong>{{ item.count }}</strong>
+                        <span>{{ item.percentage }}%</span>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+
+    <!-- مقارنة الفصول -->
+    <section class="analytics-panel">
+        <div class="page-heading">
+            <div>
+                <h2>مقارنة الفصول</h2>
+
+                <p>
+                    مؤشرات المشاركة والتقييم ومتوسط الدرجات
+                    لكل فصل.
+                </p>
+            </div>
+        </div>
+
+        {% if classroom_analytics %}
+            <div class="analytics-table-wrapper">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>الفصل</th>
+                            <th>الطالبات</th>
+                            <th>المشاركات</th>
+                            <th>الأعمال</th>
+                            <th>تم تقييمها</th>
+                            <th>نسبة المشاركة</th>
+                            <th>نسبة التقييم</th>
+                            <th>متوسط الدرجة</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in classroom_analytics %}
+                            <tr>
+                                <th scope="row">
+                                    {{ item.classroom }}
+                                </th>
+
+                                <td>{{ item.student_count }}</td>
+
+                                <td>
+                                    {{ item.students_with_work }}
+                                </td>
+
+                                <td>
+                                    {{ item.submission_count }}
+                                </td>
+
+                                <td>
+                                    {{ item.evaluated_count }}
+                                </td>
+
+                                <td>
+                                    <div class="table-progress">
+                                        <progress
+                                            value="{{ item.completion_rate }}"
+                                            max="100"
+                                        ></progress>
+
+                                        <span>
+                                            {{ item.completion_rate }}%
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="table-progress">
+                                        <progress
+                                            value="{{ item.evaluation_rate }}"
+                                            max="100"
+                                        ></progress>
+
+                                        <span>
+                                            {{ item.evaluation_rate }}%
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {{ item.average_score }}
+                                    </strong>
+                                    من 20
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <span>📊</span>
+                <h3>لا توجد فصول مسندة</h3>
+                <p>
+                    أضيفي إسنادات التدريس لتظهر التحليلات.
+                </p>
+            </div>
+        {% endif %}
+    </section>
+
+
+    <!-- أحدث الأعمال -->
+    <section class="analytics-panel">
+        <div class="page-heading">
+            <div>
+                <h2>أحدث الأعمال المرفوعة</h2>
+
+                <p>
+                    آخر أعمال استقبلها دفتر العلوم الذكي.
+                </p>
+            </div>
+
+            <a
+                href="{% url 'portfolios:teacher_submissions' %}"
+                class="button button-secondary"
+            >
+                عرض جميع الأعمال
+            </a>
+        </div>
+
+        {% if recent_submissions %}
+            <div class="recent-submissions-list">
+                {% for submission in recent_submissions %}
+                    <a
+                        href="{% url 'portfolios:teacher_submission_detail' submission.id %}"
+                        class="recent-submission-item"
+                    >
+                        <div class="recent-submission-icon">
+                            📄
+                        </div>
+
+                        <div>
+                            <strong>{{ submission.title }}</strong>
+
+                            <span>
+                                {{ submission.portfolio.student.get_full_name|default:submission.portfolio.student.username }}
+                                —
+                                {{ submission.portfolio.classroom }}
+                            </span>
+                        </div>
+
+                        <span
+                            class="submission-status
+                            status-{{ submission.status }}"
+                        >
+                            {{ submission.get_status_display }}
+                        </span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <span>📭</span>
+                <h3>لا توجد أعمال بعد</h3>
+                <p>
+                    ستظهر أحدث أعمال الطالبات هنا بعد رفعها.
+                </p>
+            </div>
+        {% endif %}
+    </section>
+
+</main>
+{% endblock %}

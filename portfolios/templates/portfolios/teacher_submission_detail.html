@@ -1,0 +1,254 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+مراجعة عمل الطالبة | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container">
+
+    <section class="portfolio-header">
+        <div>
+            <span class="portfolio-label">
+                🔍 مراجعة العمل
+            </span>
+
+            <h1>{{ submission.title }}</h1>
+
+            <p>
+                الطالبة:
+                {{ submission.portfolio.student.get_full_name|default:submission.portfolio.student.username }}
+                —
+                {{ submission.portfolio.classroom }}
+            </p>
+        </div>
+
+        <a
+            href="{% url 'portfolios:teacher_submissions' %}"
+            class="button button-secondary"
+        >
+            العودة إلى أعمال الطالبات
+        </a>
+    </section>
+
+    <div class="teacher-review-layout">
+
+        <section class="review-main-card">
+
+            <div class="review-heading">
+                <h2>تفاصيل العمل</h2>
+
+                <span
+                    class="submission-status
+                    status-{{ submission.status }}"
+                >
+                    {{ submission.get_status_display }}
+                </span>
+            </div>
+
+            {% if submission.description %}
+                <div class="review-content-block">
+                    <h3>وصف العمل</h3>
+                    <p>
+                        {{ submission.description|linebreaksbr }}
+                    </p>
+                </div>
+            {% endif %}
+
+            {% if current_version %}
+
+                {% if current_version.reflection %}
+                    <div class="review-content-block">
+                        <h3>تأمل الطالبة</h3>
+                        <p>
+                            {{ current_version.reflection|linebreaksbr }}
+                        </p>
+                    </div>
+                {% endif %}
+
+                {% if current_version.ai_used %}
+                    <div class="ai-disclosure">
+                        <strong>
+                            ✨ استخدمت الطالبة الذكاء الاصطناعي
+                        </strong>
+
+                        <p>
+                            <strong>الأداة:</strong>
+                            {{ current_version.ai_tools }}
+                        </p>
+
+                        <p>
+                            {{ current_version.ai_usage_description|linebreaksbr }}
+                        </p>
+                    </div>
+                {% endif %}
+
+                <div class="review-files">
+                    <h3>الملفات المرفوعة</h3>
+
+                    {% for attachment in current_version.attachments.all %}
+                        <article class="review-file-card">
+
+                            <div class="review-file-info">
+                                <div>
+                                    <h4>
+                                        {{ attachment.original_filename }}
+                                    </h4>
+
+                                    {% if attachment.caption %}
+                                        <p>{{ attachment.caption }}</p>
+                                    {% endif %}
+
+                                    <small>
+                                        {{ attachment.get_media_type_display }}
+                                        —
+                                        {{ attachment.size_bytes|filesizeformat }}
+                                    </small>
+                                </div>
+
+                                <a
+                                    href="{{ attachment.file.url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="button button-secondary"
+                                >
+                                    فتح الملف
+                                </a>
+                            </div>
+
+                            {% if attachment.media_type == "image" %}
+                                <div class="review-media-preview">
+                                    <img
+                                        src="{{ attachment.file.url }}"
+                                        alt="{{ attachment.caption|default:attachment.original_filename }}"
+                                        loading="lazy"
+                                    >
+                                </div>
+
+                            {% elif attachment.media_type == "video" %}
+                                <div class="review-media-preview">
+                                    <video controls preload="metadata">
+                                        <source
+                                            src="{{ attachment.file.url }}"
+                                            type="{{ attachment.mime_type }}"
+                                        >
+                                        المتصفح لا يدعم تشغيل الفيديو.
+                                    </video>
+                                </div>
+
+                            {% elif attachment.media_type == "audio" %}
+                                <div class="review-audio-preview">
+                                    <audio controls preload="metadata">
+                                        <source
+                                            src="{{ attachment.file.url }}"
+                                            type="{{ attachment.mime_type }}"
+                                        >
+                                        المتصفح لا يدعم تشغيل الصوت.
+                                    </audio>
+                                </div>
+                            {% endif %}
+
+                        </article>
+                    {% empty %}
+                        <div class="empty-state">
+                            <p>لا يوجد ملف مرفق بهذا العمل.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <div class="empty-state">
+                    <p>لا توجد نسخة حالية لهذا العمل.</p>
+                </div>
+            {% endif %}
+
+        </section>
+
+        <aside class="review-sidebar-card">
+            <h2>بيانات التسليم</h2>
+
+            <dl class="review-data-list">
+                <div>
+                    <dt>الطالبة</dt>
+                    <dd>
+                        {{ submission.portfolio.student.get_full_name|default:submission.portfolio.student.username }}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>الفصل</dt>
+                    <dd>{{ submission.portfolio.classroom }}</dd>
+                </div>
+
+                <div>
+                    <dt>المقرر</dt>
+                    <dd>{{ submission.portfolio.subject }}</dd>
+                </div>
+
+                <div>
+                    <dt>حالة العمل</dt>
+                    <dd>{{ submission.get_status_display }}</dd>
+                </div>
+
+                <div>
+                    <dt>تاريخ الرفع</dt>
+                    <dd>
+                        {{ submission.created_at|date:"Y/m/d - H:i" }}
+                    </dd>
+                </div>
+
+                {% if submission.section %}
+                    <div>
+                        <dt>قسم الدفتر</dt>
+                        <dd>{{ submission.section.title }}</dd>
+                    </div>
+                {% endif %}
+            </dl>
+
+<div class="evaluation-coming">
+    <span>✅</span>
+    <h3>تقييم العمل</h3>
+
+    {% if current_version.evaluation %}
+        <div class="current-evaluation-summary">
+            <p>
+                <strong>الدرجة:</strong>
+                {{ current_version.evaluation.total_score }}
+                من 20
+            </p>
+
+            <p>
+                <strong>حالة التقييم:</strong>
+                {{ current_version.evaluation.get_status_display }}
+            </p>
+
+            {% if current_version.evaluation.general_feedback %}
+                <p>
+                    <strong>التغذية الراجعة:</strong>
+                    {{ current_version.evaluation.general_feedback }}
+                </p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>
+            لم يتم تقييم هذا العمل حتى الآن.
+        </p>
+    {% endif %}
+
+    {% if current_version %}
+        <a
+            href="{% url 'assessment:evaluate_submission' submission.id %}"
+            class="button button-primary"
+        >
+            {% if current_version.evaluation %}
+                تعديل التقييم
+            {% else %}
+                تقييم العمل
+            {% endif %}
+        </a>
+    {% endif %}
+</div>        </aside>
+
+    </div>
+</main>
+{% endblock %}
