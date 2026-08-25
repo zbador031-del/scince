@@ -1,0 +1,175 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+الأنشطة المطلوبة | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container">
+
+    <section class="activities-header">
+        <div>
+            <span class="portfolio-label">
+                📝 مهامي العلمية
+            </span>
+
+            <h1>الأنشطة المطلوبة</h1>
+
+            <p>
+                تابعي تعليمات الأنشطة ومواعيد التسليم
+                وحالة كل عمل.
+            </p>
+
+            {% if enrollment %}
+                <span class="student-classroom-label">
+                    الفصل: {{ enrollment.classroom }}
+                </span>
+            {% endif %}
+        </div>
+
+        <a
+            href="{% url 'accounts:student_dashboard' %}"
+            class="button button-secondary"
+        >
+            العودة إلى لوحة الطالبة
+        </a>
+    </section>
+
+
+    <section class="student-activities-section">
+
+        <div class="page-heading">
+            <div>
+                <h2>أنشطتي</h2>
+
+                <p>
+                    الأنشطة المنشورة والمطلوبة من فصلك.
+                </p>
+            </div>
+
+            <span class="works-count">
+                {{ activities|length }} نشاط
+            </span>
+        </div>
+
+
+        {% if activities %}
+            <div class="student-activity-grid">
+
+                {% for activity in activities %}
+                    <article class="student-activity-card">
+
+                        <div class="activity-card-top">
+                            <span class="activity-type-icon">
+                                {% if activity.activity_type == "worksheet" %}
+                                    📄
+                                {% elif activity.activity_type == "foldable" %}
+                                    📚
+                                {% elif activity.activity_type == "experiment" %}
+                                    🧪
+                                {% elif activity.activity_type == "project" %}
+                                    🛠️
+                                {% elif activity.activity_type == "presentation" %}
+                                    📊
+                                {% elif activity.activity_type == "video" %}
+                                    🎬
+                                {% elif activity.activity_type == "ai_work" %}
+                                    🤖
+                                {% else %}
+                                    📝
+                                {% endif %}
+                            </span>
+
+                            {% if activity.student_submission %}
+                                <span
+                                    class="submission-status
+                                    status-{{ activity.student_submission.status }}"
+                                >
+                                    {{ activity.student_submission.get_status_display }}
+                                </span>
+                            {% elif not activity.has_opened %}
+                                <span class="activity-not-open">
+                                    لم يبدأ
+                                </span>
+                            {% elif activity.is_late %}
+                                <span class="activity-late">
+                                    متأخر
+                                </span>
+                            {% else %}
+                                <span class="activity-open">
+                                    متاح
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <h2>{{ activity.title }}</h2>
+
+                        <div class="activity-tags">
+                            <span>
+                                {{ activity.get_activity_type_display }}
+                            </span>
+
+                            <span>
+                                {{ activity.get_work_mode_display }}
+                            </span>
+
+                            <span>
+                                {{ activity.max_score }}
+                                درجة
+                            </span>
+                        </div>
+
+                        {% if activity.description %}
+                            <p class="activity-description">
+                                {{ activity.description|truncatechars:150 }}
+                            </p>
+                        {% endif %}
+
+                        <div class="student-activity-info">
+                            <div>
+                                <strong>موعد التسليم</strong>
+
+                                <span>
+                                    {% if activity.due_at %}
+                                        {{ activity.due_at|date:"Y/m/d - H:i" }}
+                                    {% else %}
+                                        مفتوح
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div>
+                                <strong>استخدام الذكاء الاصطناعي</strong>
+
+                                <span>
+                                    {{ activity.get_ai_policy_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <a
+                            href="{% url 'activities:student_activity_detail' activity.id %}"
+                            class="button button-primary"
+                        >
+                            عرض النشاط
+                        </a>
+
+                    </article>
+                {% endfor %}
+
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <span>🎉</span>
+
+                <h3>لا توجد أنشطة مطلوبة حاليًا</h3>
+
+                <p>
+                    ستظهر الأنشطة هنا فور نشرها من المعلمة.
+                </p>
+            </div>
+        {% endif %}
+
+    </section>
+</main>
+{% endblock %}

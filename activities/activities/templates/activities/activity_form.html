@@ -1,0 +1,341 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+{{ page_title }} | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container">
+
+    <section class="activities-header">
+        <div>
+            <span class="portfolio-label">
+                📝 نشاط تعليمي
+            </span>
+
+            <h1>{{ page_title }}</h1>
+
+            <p>
+                حددي تفاصيل النشاط والفصول المستهدفة
+                وموعد التسليم.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'activities:teacher_activity_list' %}"
+            class="button button-secondary"
+        >
+            العودة إلى الأنشطة
+        </a>
+    </section>
+
+
+    <section class="activity-form-card">
+
+        {% if form.non_field_errors %}
+            <div class="form-errors" role="alert">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+            class="activity-form"
+        >
+            {% csrf_token %}
+
+
+            <fieldset class="activity-form-section">
+                <legend>البيانات الأساسية</legend>
+
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">
+                        {{ form.title.label }}
+                    </label>
+
+                    {{ form.title }}
+
+                    {% for error in form.title.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">
+                        {{ form.description.label }}
+                    </label>
+
+                    {{ form.description }}
+
+                    {% for error in form.description.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.instructions.id_for_label }}">
+                        {{ form.instructions.label }}
+                    </label>
+
+                    {{ form.instructions }}
+
+                    {% for error in form.instructions.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+
+            <fieldset class="activity-form-section">
+                <legend>نوع النشاط وطريقة تنفيذه</legend>
+
+                <div class="activity-form-grid">
+                    <div class="form-group">
+                        <label
+                            for="{{ form.activity_type.id_for_label }}"
+                        >
+                            {{ form.activity_type.label }}
+                        </label>
+
+                        {{ form.activity_type }}
+
+                        {% for error in form.activity_type.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            for="{{ form.work_mode.id_for_label }}"
+                        >
+                            {{ form.work_mode.label }}
+                        </label>
+
+                        {{ form.work_mode }}
+
+                        {% for error in form.work_mode.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.ai_policy.id_for_label }}">
+                            {{ form.ai_policy.label }}
+                        </label>
+
+                        {{ form.ai_policy }}
+
+                        {% for error in form.ai_policy.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.max_score.id_for_label }}">
+                            {{ form.max_score.label }}
+                        </label>
+
+                        {{ form.max_score }}
+
+                        {% for error in form.max_score.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </fieldset>
+
+
+            <fieldset class="activity-form-section">
+                <legend>المنهج والفصول المستهدفة</legend>
+
+                <div class="activity-form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.subject.id_for_label }}">
+                            {{ form.subject.label }}
+                        </label>
+
+                        {{ form.subject }}
+
+                        {% for error in form.subject.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.term.id_for_label }}">
+                            {{ form.term.label }}
+                        </label>
+
+                        {{ form.term }}
+
+                        {% for error in form.term.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.unit.id_for_label }}">
+                            {{ form.unit.label }}
+                        </label>
+
+                        {{ form.unit }}
+
+                        {% for error in form.unit.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.lesson.id_for_label }}">
+                            {{ form.lesson.label }}
+                        </label>
+
+                        {{ form.lesson }}
+
+                        {% for error in form.lesson.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <span class="field-label">
+                        {{ form.classrooms.label }}
+                    </span>
+
+                    <div class="classroom-checkbox-grid">
+                        {% for checkbox in form.classrooms %}
+                            <label class="classroom-checkbox-card">
+                                {{ checkbox.tag }}
+                                <span>{{ checkbox.choice_label }}</span>
+                            </label>
+                        {% empty %}
+                            <p>
+                                لا توجد فصول مسندة إلى حساب المعلمة.
+                            </p>
+                        {% endfor %}
+                    </div>
+
+                    {% if form.classrooms.help_text %}
+                        <small class="form-help">
+                            {{ form.classrooms.help_text }}
+                        </small>
+                    {% endif %}
+
+                    {% for error in form.classrooms.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+
+            <fieldset class="activity-form-section">
+                <legend>وقت التسليم والملفات</legend>
+
+                <div class="activity-form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.opens_at.id_for_label }}">
+                            {{ form.opens_at.label }}
+                        </label>
+
+                        {{ form.opens_at }}
+
+                        {% for error in form.opens_at.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.due_at.id_for_label }}">
+                            {{ form.due_at.label }}
+                        </label>
+
+                        {{ form.due_at }}
+
+                        {% for error in form.due_at.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.max_files.id_for_label }}">
+                            {{ form.max_files.label }}
+                        </label>
+
+                        {{ form.max_files }}
+
+                        {% for error in form.max_files.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            for="{{ form.max_file_size_mb.id_for_label }}"
+                        >
+                            {{ form.max_file_size_mb.label }}
+                        </label>
+
+                        {{ form.max_file_size_mb }}
+
+                        {% for error in form.max_file_size_mb.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.reference_file.id_for_label }}">
+                        {{ form.reference_file.label }}
+                    </label>
+
+                    {{ form.reference_file }}
+
+                    <small class="form-help">
+                        يمكنك إرفاق ورقة تعليمات أو نموذج إرشادي.
+                    </small>
+
+                    {% for error in form.reference_file.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <label class="checkbox-field">
+                    {{ form.allow_late_submission }}
+
+                    <span>
+                        {{ form.allow_late_submission.label }}
+                    </span>
+                </label>
+            </fieldset>
+
+
+            <fieldset class="activity-form-section publish-section">
+                <legend>النشر</legend>
+
+                <label class="checkbox-field publish-checkbox">
+                    {{ form.is_published }}
+
+                    <span>
+                        نشر النشاط وإظهاره للطالبات
+                    </span>
+                </label>
+
+                <p>
+                    إذا لم تفعّلي النشر سيُحفظ النشاط مسودة
+                    ولن يظهر في حسابات الطالبات.
+                </p>
+            </fieldset>
+
+
+            <button type="submit" class="button button-primary">
+                {{ submit_label }}
+            </button>
+
+        </form>
+    </section>
+</main>
+{% endblock %}

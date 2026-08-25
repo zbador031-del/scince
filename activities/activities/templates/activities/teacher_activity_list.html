@@ -1,0 +1,200 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+الأنشطة التعليمية | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container">
+
+    {% if messages %}
+        <div class="page-messages">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <section class="activities-header">
+        <div>
+            <span class="portfolio-label">
+                📝 إدارة الأنشطة
+            </span>
+
+            <h1>الأنشطة التعليمية</h1>
+
+            <p>
+                أنشئي الأنشطة والمطويات والمشروعات،
+                وحددي الفصول ومواعيد التسليم.
+            </p>
+        </div>
+
+        <div class="activities-header-actions">
+            <a
+                href="{% url 'activities:teacher_activity_create' %}"
+                class="button button-primary"
+            >
+                إنشاء نشاط جديد
+            </a>
+
+            <a
+                href="{% url 'accounts:teacher_dashboard' %}"
+                class="button button-secondary"
+            >
+                لوحة المعلمة
+            </a>
+        </div>
+    </section>
+
+
+    <section class="teacher-activities-section">
+
+        <div class="page-heading">
+            <div>
+                <h2>أنشطتي</h2>
+
+                <p>
+                    الأنشطة المنشورة والمسودات التي أنشأتها.
+                </p>
+            </div>
+
+            <span class="works-count">
+                {{ activities|length }} نشاط
+            </span>
+        </div>
+
+
+        {% if activities %}
+            <div class="activity-card-grid">
+
+                {% for activity in activities %}
+                    <article class="teacher-activity-card">
+
+                        <div class="activity-card-top">
+                            <span class="activity-type-icon">
+                                {% if activity.activity_type == "worksheet" %}
+                                    📄
+                                {% elif activity.activity_type == "foldable" %}
+                                    📚
+                                {% elif activity.activity_type == "experiment" %}
+                                    🧪
+                                {% elif activity.activity_type == "project" %}
+                                    🛠️
+                                {% elif activity.activity_type == "presentation" %}
+                                    📊
+                                {% elif activity.activity_type == "video" %}
+                                    🎬
+                                {% elif activity.activity_type == "ai_work" %}
+                                    🤖
+                                {% else %}
+                                    📝
+                                {% endif %}
+                            </span>
+
+                            {% if activity.is_published %}
+                                <span class="activity-published">
+                                    منشور
+                                </span>
+                            {% else %}
+                                <span class="activity-draft">
+                                    مسودة
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <h2>{{ activity.title }}</h2>
+
+                        <div class="activity-tags">
+                            <span>
+                                {{ activity.get_activity_type_display }}
+                            </span>
+
+                            <span>
+                                {{ activity.get_work_mode_display }}
+                            </span>
+
+                            <span>
+                                {{ activity.max_score }}
+                                درجة
+                            </span>
+                        </div>
+
+                        {% if activity.description %}
+                            <p class="activity-description">
+                                {{ activity.description|truncatechars:150 }}
+                            </p>
+                        {% endif %}
+
+                        <div class="activity-detail-list">
+                            <div>
+                                <strong>المقرر</strong>
+                                <span>{{ activity.subject }}</span>
+                            </div>
+
+                            <div>
+                                <strong>الفصل الدراسي</strong>
+                                <span>{{ activity.term }}</span>
+                            </div>
+
+                            <div>
+                                <strong>موعد التسليم</strong>
+
+                                <span>
+                                    {% if activity.due_at %}
+                                        {{ activity.due_at|date:"Y/m/d - H:i" }}
+                                    {% else %}
+                                        مفتوح
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div>
+                                <strong>الفصول المستهدفة</strong>
+
+                                <span>
+                                    {% for classroom in activity.classrooms.all %}
+                                        {{ classroom }}
+                                        {% if not forloop.last %}،{% endif %}
+                                    {% empty %}
+                                        لم يتم تحديد فصل
+                                    {% endfor %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <a
+                            href="{% url 'activities:teacher_activity_update' activity.id %}"
+                            class="button button-secondary"
+                        >
+                            تعديل النشاط
+                        </a>
+
+                    </article>
+                {% endfor %}
+
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <span>📝</span>
+
+                <h3>لم تنشئي أي نشاط بعد</h3>
+
+                <p>
+                    أنشئي أول نشاط وحددي التعليمات
+                    والفصول وموعد التسليم.
+                </p>
+
+                <a
+                    href="{% url 'activities:teacher_activity_create' %}"
+                    class="button button-primary"
+                >
+                    إنشاء أول نشاط
+                </a>
+            </div>
+        {% endif %}
+
+    </section>
+</main>
+{% endblock %}

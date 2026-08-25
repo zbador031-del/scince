@@ -1,0 +1,234 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+{{ activity.title }} | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container">
+
+    <section class="activities-header">
+        <div>
+            <span class="portfolio-label">
+                {{ activity.get_activity_type_display }}
+            </span>
+
+            <h1>{{ activity.title }}</h1>
+
+            <p>
+                {{ activity.subject }}
+                —
+                {{ enrollment.classroom }}
+            </p>
+        </div>
+
+        <a
+            href="{% url 'activities:student_activity_list' %}"
+            class="button button-secondary"
+        >
+            العودة إلى الأنشطة
+        </a>
+    </section>
+
+
+    <div class="student-activity-detail-layout">
+
+        <section class="activity-instructions-card">
+
+            {% if activity.description %}
+                <div class="activity-detail-block">
+                    <h2>وصف النشاط</h2>
+
+                    <p>
+                        {{ activity.description|linebreaksbr }}
+                    </p>
+                </div>
+            {% endif %}
+
+
+            <div class="activity-detail-block">
+                <h2>تعليمات التنفيذ</h2>
+
+                <p>
+                    {{ activity.instructions|linebreaksbr }}
+                </p>
+            </div>
+
+
+            {% if activity.unit or activity.lesson %}
+                <div class="activity-detail-block">
+                    <h2>ارتباط النشاط بالمنهج</h2>
+
+                    {% if activity.unit %}
+                        <p>
+                            <strong>الوحدة:</strong>
+                            {{ activity.unit }}
+                        </p>
+                    {% endif %}
+
+                    {% if activity.lesson %}
+                        <p>
+                            <strong>الدرس:</strong>
+                            {{ activity.lesson }}
+                        </p>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+
+            {% if activity.reference_file %}
+                <div class="activity-reference-file">
+                    <div>
+                        <span>📎</span>
+
+                        <div>
+                            <strong>ملف إرشادي من المعلمة</strong>
+                            <p>
+                                حمّلي الملف واقرئي التعليمات
+                                قبل تنفيذ النشاط.
+                            </p>
+                        </div>
+                    </div>
+
+                    <a
+                        href="{{ activity.reference_file.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="button button-secondary"
+                    >
+                        فتح الملف الإرشادي
+                    </a>
+                </div>
+            {% endif %}
+
+        </section>
+
+
+        <aside class="activity-requirements-card">
+            <h2>متطلبات التسليم</h2>
+
+            <dl class="review-data-list">
+                <div>
+                    <dt>نوع النشاط</dt>
+                    <dd>
+                        {{ activity.get_activity_type_display }}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>طريقة التنفيذ</dt>
+                    <dd>
+                        {{ activity.get_work_mode_display }}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>الدرجة</dt>
+                    <dd>{{ activity.max_score }} درجة</dd>
+                </div>
+
+                <div>
+                    <dt>سياسة الذكاء الاصطناعي</dt>
+                    <dd>
+                        {{ activity.get_ai_policy_display }}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>موعد بداية النشاط</dt>
+                    <dd>
+                        {% if activity.opens_at %}
+                            {{ activity.opens_at|date:"Y/m/d - H:i" }}
+                        {% else %}
+                            متاح الآن
+                        {% endif %}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>موعد التسليم</dt>
+                    <dd>
+                        {% if activity.due_at %}
+                            {{ activity.due_at|date:"Y/m/d - H:i" }}
+                        {% else %}
+                            لا يوجد موعد محدد
+                        {% endif %}
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>الحد الأعلى للملفات</dt>
+                    <dd>{{ activity.max_files }}</dd>
+                </div>
+
+                <div>
+                    <dt>حجم الملف</dt>
+                    <dd>
+                        حتى
+                        {{ activity.max_file_size_mb }}
+                        ميجابايت
+                    </dd>
+                </div>
+            </dl>
+
+
+            {% if submission %}
+                <div class="activity-submitted-notice">
+                    <strong>✅ تم تسليم هذا النشاط</strong>
+
+                    <p>
+                        الحالة:
+                        {{ submission.get_status_display }}
+                    </p>
+
+                    <a
+                        href="{% url 'portfolios:student_portfolio' %}"
+                        class="button button-secondary"
+                    >
+                        مشاهدة العمل في دفتري
+                    </a>
+                </div>
+
+            {% elif not activity.has_opened %}
+                <div class="activity-waiting-notice">
+                    <strong>⏳ لم يبدأ استقبال الأعمال</strong>
+
+                    <p>
+                        سيظهر زر التسليم عند حلول موعد البداية.
+                    </p>
+                </div>
+
+            {% elif activity.can_submit %}
+                {% if activity.is_late %}
+                    <div class="activity-late-notice">
+                        <strong>⚠️ التسليم متأخر</strong>
+
+                        <p>
+                            تسمح المعلمة باستقبال العمل
+                            بعد الموعد المحدد.
+                        </p>
+                    </div>
+                {% endif %}
+
+                <a
+                    href="{% url 'portfolios:upload_submission' %}?activity={{ activity.id }}"
+                    class="button button-primary activity-submit-button"
+                >
+                    رفع وتسليم النشاط
+                </a>
+
+            {% else %}
+                <div class="activity-closed-notice">
+                    <strong>🔒 انتهى موعد التسليم</strong>
+
+                    <p>
+                        تواصلي مع المعلمة إذا كان لديك عذر.
+                    </p>
+                </div>
+            {% endif %}
+
+        </aside>
+    </div>
+
+</main>
+{% endblock %}
