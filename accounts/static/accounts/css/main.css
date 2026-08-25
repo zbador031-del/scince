@@ -1120,3 +1120,97 @@ video {
         font-size: 0.88rem;
     }
 }
+/* صفحة إنشاء حسابات الطالبات */
+.bulk-students-card {
+    width: min(100%, 680px);
+}
+
+.bulk-students-form {
+    display: grid;
+    gap: 20px;
+    margin-top: 24px;
+}
+
+.bulk-students-form .form-group {
+    display: grid;
+    gap: 8px;
+}
+
+.bulk-students-form label {
+    color: #155e63;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.bulk-students-form select,
+.bulk-students-form input {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 14px;
+    border: 1px solid #b8d8d8;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #163838;
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.bulk-students-form select:focus,
+.bulk-students-form input:focus {
+    border-color: #14847e;
+    box-shadow: 0 0 0 4px rgba(20, 132, 126, 0.14);
+}
+
+.form-help {
+    color: #617878;
+    font-size: 0.88rem;
+    line-height: 1.7;
+}
+
+.form-errors,
+.field-error {
+    color: #991b1b;
+}
+
+.form-errors {
+    margin-top: 18px;
+    padding: 12px 16px;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    background-color: #fef2f2;
+}
+
+.field-error {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.security-notice {
+    padding: 16px;
+    border: 1px solid #f3ca67;
+    border-radius: 14px;
+    background-color: #fff8df;
+    color: #704f06;
+    line-height: 1.8;
+}
+
+.bulk-students-form .button {
+    width: 100%;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .bulk-students-card {
+        padding: 22px 16px;
+    }
+
+    .bulk-students-form select,
+    .bulk-students-form input {
+        font-size: 16px;
+    }
+}

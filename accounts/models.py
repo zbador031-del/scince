@@ -14,6 +14,8 @@ class User(AbstractUser):
     email = models.EmailField(
         "البريد الإلكتروني",
         unique=True,
+        null=True,
+        blank=True,
     )
 
     role = models.CharField(
@@ -54,12 +56,17 @@ class User(AbstractUser):
         auto_now=True,
     )
 
-    REQUIRED_FIELDS = ["email"]
+    # لا يُطلب البريد عند إنشاء الحساب.
+    REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = "مستخدم"
         verbose_name_plural = "المستخدمون"
-        ordering = ["first_name", "last_name", "username"]
+        ordering = [
+            "first_name",
+            "last_name",
+            "username",
+        ]
 
     def __str__(self):
         full_name = self.get_full_name().strip()

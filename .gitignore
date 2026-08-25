@@ -7,3 +7,7 @@ media/
 staticfiles/
 *.log
 .vscode/
+
+# ملفات حسابات الطالبات السرية
+student_accounts_*.xlsx
+*.xlsx

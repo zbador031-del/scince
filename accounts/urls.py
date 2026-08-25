@@ -9,61 +9,57 @@ app_name = "accounts"
 
 urlpatterns = [
     # الصفحة الرئيسية
+    path("", views.home, name="home"),
+
+    # استعلام ولي الأمر
     path(
-        "",
-        views.home,
-        name="home",
+        "parent-inquiry/",
+        views.parent_inquiry,
+        name="parent_inquiry",
     ),
 
-
-# استعلام ولي الأمر
-path(
-    "parent-inquiry/",
-    views.parent_inquiry,
-    name="parent_inquiry",
-),
-    # تسجيل الدخول
+    # تسجيل الدخول والخروج
     path(
         "login/",
         auth_views.LoginView.as_view(
-            template_name="accounts/login.html",
-            redirect_authenticated_user=True,
+            template_name="accounts/login.html"
         ),
         name="login",
     ),
-
-    # تسجيل الخروج
     path(
         "logout/",
         auth_views.LogoutView.as_view(),
         name="logout",
     ),
 
-    # التوجيه حسب نوع الحساب
+    # توجيه المستخدم إلى لوحة التحكم المناسبة
     path(
         "dashboard/",
         views.dashboard_redirect,
         name="dashboard",
     ),
 
-    # لوحة المعلمة
+    # لوحات التحكم
     path(
-        "teacher/",
+        "teacher/dashboard/",
         views.teacher_dashboard,
         name="teacher_dashboard",
     ),
-
-    # لوحة الطالبة
     path(
-        "student/",
+        "student/dashboard/",
         views.student_dashboard,
         name="student_dashboard",
     ),
-
-    # لوحة ولي الأمر
     path(
-        "parent/",
+        "parent/dashboard/",
         views.parent_dashboard,
         name="parent_dashboard",
+    ),
+
+    # إنشاء حسابات الطالبات دفعة واحدة
+    path(
+        "teacher/students/bulk-create/",
+        views.bulk_create_students,
+        name="bulk_create_students",
     ),
 ]
