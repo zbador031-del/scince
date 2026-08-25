@@ -9,14 +9,17 @@ from .models import User
 
 @require_GET
 def home(request):
-    """الصفحة الرئيسية العامة لجميع المستخدمين."""
+    """عرض الصفحة الرئيسية لجميع المستخدمين."""
 
-    return render(request, "accounts/home.html")
+    return render(
+        request,
+        "accounts/home.html",
+    )
 
 
 @require_GET
 def parent_inquiry(request):
-    """الانتقال إلى منصة استعلام ولي الأمر."""
+    """الانتقال إلى صفحة استعلام ولي الأمر الخارجية."""
 
     inquiry_url = settings.PARENT_INQUIRY_URL
 
@@ -29,11 +32,16 @@ def parent_inquiry(request):
 @login_required
 @require_GET
 def dashboard_redirect(request):
-    """توجيه المستخدم إلى لوحته حسب نوع الحساب."""
+    """توجيه المستخدم إلى لوحته حسب نوع حسابه."""
 
     user = request.user
 
-    if user.is_superuser or user.role == User.Role.ADMIN:
+    # حساب المدير يفتح لوحة المعلمة.
+    # لوحة إدارة جانكو تبقى متاحة من رابط إدارة النظام.
+    if user.is_superuser:
+        return redirect("accounts:teacher_dashboard")
+
+    if user.role == User.Role.ADMIN:
         return redirect("admin:index")
 
     if user.role == User.Role.TEACHER:
@@ -51,7 +59,7 @@ def dashboard_redirect(request):
 @login_required
 @require_GET
 def teacher_dashboard(request):
-    """لوحة المعلمة."""
+    """عرض لوحة المعلمة."""
 
     if (
         request.user.role != User.Role.TEACHER
@@ -76,7 +84,7 @@ def teacher_dashboard(request):
 @login_required
 @require_GET
 def student_dashboard(request):
-    """لوحة الطالبة."""
+    """عرض لوحة الطالبة."""
 
     if (
         request.user.role != User.Role.STUDENT
@@ -101,7 +109,7 @@ def student_dashboard(request):
 @login_required
 @require_GET
 def parent_dashboard(request):
-    """لوحة ولي الأمر."""
+    """عرض لوحة ولي الأمر."""
 
     if (
         request.user.role != User.Role.PARENT
