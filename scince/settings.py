@@ -1,7 +1,8 @@
 import os
-from dotenv import load_dotenv
-import os
 from pathlib import Path
+
+import dj_database_url
+from dotenv import load_dotenv
 
 
 # المسار الأساسي للمشروع
@@ -20,7 +21,7 @@ SECRET_KEY = os.environ.get(
 
 
 # وضع التطوير المحلي
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
 
 # النطاقات المسموح بها محليًا
@@ -29,11 +30,21 @@ ALLOWED_HOSTS = [
     "localhost",
 ]
 
+if render_hostname := os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
+    ALLOWED_HOSTS.append(render_hostname)
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
+if render_hostname:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{render_hostname}")
+
 
 # التطبيقات المثبتة
 INSTALLED_APPS = [
-        "cloudinary_storage",
-    "cloudinary",
     # تطبيقات Django الأساسية
     "django.contrib.admin",
     "django.contrib.auth",
@@ -59,6 +70,7 @@ AUTH_USER_MODEL = "accounts.User"
 # البرمجيات الوسيطة
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -99,10 +111,11 @@ WSGI_APPLICATION = "scince.wsgi.application"
 
 # قاعدة البيانات
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 
@@ -150,6 +163,10 @@ USE_TZ = True
 
 # الملفات الثابتة مثل CSS وJavaScript
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedStaticFilesStorage"
+)
 
 
 # الملفات المرفوعة مثل الصور والفيديوهات والمستندات
@@ -178,8 +195,21 @@ STORAGES = {
     },
     "staticfiles": {
         "BACKEND": (
-            "django.contrib.staticfiles.storage."
-            "StaticFilesStorage"
+            "whitenoise.storage."
+            "CompressedStaticFilesStorage"
         ),
     },
 }
+
+if not os.environ.get("CLOUDINARY_URL"):
+    STORAGES["default"] = {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    }
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
