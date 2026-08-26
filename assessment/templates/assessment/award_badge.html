@@ -1,0 +1,125 @@
+{% extends "accounts/base.html" %}
+
+
+{% block title %}
+منح شارة | دفتر العلوم الذكي
+{% endblock %}
+
+
+{% block content %}
+<div class="page-container">
+
+    <section class="dashboard-header">
+        <div>
+            <h1>منح شارة لطالبة</h1>
+
+            <p>
+                اختاري الطالبة والشارة، وسيحفظ النظام
+                اسم المعلمة وتاريخ المنح تلقائيًا.
+            </p>
+        </div>
+
+        <div class="feature-icon" aria-hidden="true">
+            🏅
+        </div>
+    </section>
+
+
+    <section class="dashboard-security-card">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="message message-error">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+
+            <div class="form-group">
+                <label for="{{ form.portfolio.id_for_label }}">
+                    {{ form.portfolio.label }}
+                </label>
+
+                {{ form.portfolio }}
+
+                {% for error in form.portfolio.errors %}
+                    <p class="form-error">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </div>
+
+
+            <div class="form-group">
+                <label for="{{ form.badge.id_for_label }}">
+                    {{ form.badge.label }}
+                </label>
+
+                {{ form.badge }}
+
+                {% for error in form.badge.errors %}
+                    <p class="form-error">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </div>
+
+
+            <div class="form-group">
+                <label for="{{ form.reason.id_for_label }}">
+                    {{ form.reason.label }}
+                </label>
+
+                {{ form.reason }}
+
+                <p class="form-help">
+                    اكتبي سببًا واضحًا سيظهر للطالبة
+                    داخل تقريرها الشخصي.
+                </p>
+
+                {% for error in form.reason.errors %}
+                    <p class="form-error">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </div>
+
+
+            <div class="dashboard-card-actions">
+                <button
+                    type="submit"
+                    class="button button-primary"
+                >
+                    منح الشارة الآن
+                </button>
+
+                <a
+                    href="{% url 'accounts:teacher_dashboard' %}"
+                    class="button button-secondary"
+                >
+                    العودة إلى لوحة المعلمة
+                </a>
+            </div>
+        </form>
+    </section>
+
+
+    <section class="dashboard-card">
+        <div class="feature-icon" aria-hidden="true">
+            ℹ️
+        </div>
+
+        <h2>تنبيه</h2>
+
+        <p>
+            لا يمكن منح الشارة نفسها للطالبة أكثر من مرة.
+            ويمكن للطالبة مشاهدة الشارة فورًا من بطاقة
+            «شاراتي وإنجازاتي».
+        </p>
+    </section>
+
+</div>
+{% endblock %}

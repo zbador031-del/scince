@@ -2,7 +2,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import (
+    get_object_or_404,
+    redirect,
+    render,
+)
 from django.utils import timezone
 from django.views.decorators.http import (
     require_http_methods,
@@ -10,14 +14,18 @@ from django.views.decorators.http import (
 )
 
 from academics.models import TeachingAssignment
-from portfolios.models import Submission, SubmissionVersion
+from portfolios.models import (
+    Submission,
+    SubmissionVersion,
+)
 
 from .forms import (
+    BadgeAwardForm,
     BulkEvaluationForm,
     EvaluationDecision,
     EvaluationForm,
 )
-from .models import Evaluation
+from .models import Evaluation, StudentBadge
 
 
 def _ensure_teacher(user):
@@ -35,24 +43,30 @@ def _ensure_teacher(user):
 def _allowed_submissions(user):
     """الأعمال التي يحق للمعلمة تقييمها."""
 
-    submissions = Submission.objects.select_related(
-        "portfolio",
-        "portfolio__student",
-        "portfolio__classroom",
-        "portfolio__subject",
-    ).prefetch_related(
-        "versions__attachments"
+    submissions = (
+        Submission.objects.select_related(
+            "portfolio",
+            "portfolio__student",
+            "portfolio__classroom",
+            "portfolio__subject",
+        )
+        .prefetch_related(
+            "versions__attachments"
+        )
     )
 
     if user.is_superuser:
         return submissions
 
-    classroom_ids = TeachingAssignment.objects.filter(
-        teacher=user,
-        is_active=True,
-    ).values_list(
-        "classroom_id",
-        flat=True,
+    classroom_ids = (
+        TeachingAssignment.objects.filter(
+            teacher=user,
+            is_active=True,
+        )
+        .values_list(
+            "classroom_id",
+            flat=True,
+        )
     )
 
     return submissions.filter(
@@ -63,14 +77,25 @@ def _allowed_submissions(user):
 def _decision_from_submission(submission):
     """تحديد القرار الحالي للعمل."""
 
-    if submission.status == Submission.Status.APPROVED:
+    if (
+        submission.status
+        == Submission.Status.APPROVED
+    ):
         return EvaluationDecision.APPROVED
 
-    if submission.status == Submission.Status.FEATURED:
+    if (
+        submission.status
+        == Submission.Status.FEATURED
+    ):
         return EvaluationDecision.FEATURED
 
-    if submission.status == Submission.Status.REVISION_REQUIRED:
-        return EvaluationDecision.REVISION_REQUIRED
+    if (
+        submission.status
+        == Submission.Status.REVISION_REQUIRED
+    ):
+        return (
+            EvaluationDecision.REVISION_REQUIRED
+        )
 
     return EvaluationDecision.DRAFT
 
@@ -88,39 +113,62 @@ def _apply_evaluation(
     """حفظ التقييم وتحديث حالة العمل."""
 
     if decision == EvaluationDecision.DRAFT:
-        evaluation_status = Evaluation.Status.DRAFT
+        evaluation_status = (
+            Evaluation.Status.DRAFT
+        )
         published_at = None
-        submission_status = Submission.Status.UNDER_REVIEW
+        submission_status = (
+            Submission.Status.UNDER_REVIEW
+        )
         is_featured = False
 
-    elif decision == EvaluationDecision.REVISION_REQUIRED:
-        evaluation_status = Evaluation.Status.REVISION_REQUIRED
+    elif (
+        decision
+        == EvaluationDecision.REVISION_REQUIRED
+    ):
+        evaluation_status = (
+            Evaluation.Status.REVISION_REQUIRED
+        )
         published_at = timezone.now()
-        submission_status = Submission.Status.REVISION_REQUIRED
+        submission_status = (
+            Submission.Status.REVISION_REQUIRED
+        )
         is_featured = False
 
     elif decision == EvaluationDecision.FEATURED:
-        evaluation_status = Evaluation.Status.PUBLISHED
+        evaluation_status = (
+            Evaluation.Status.PUBLISHED
+        )
         published_at = timezone.now()
-        submission_status = Submission.Status.FEATURED
+        submission_status = (
+            Submission.Status.FEATURED
+        )
         is_featured = True
 
     else:
-        evaluation_status = Evaluation.Status.PUBLISHED
+        evaluation_status = (
+            Evaluation.Status.PUBLISHED
+        )
         published_at = timezone.now()
-        submission_status = Submission.Status.APPROVED
+        submission_status = (
+            Submission.Status.APPROVED
+        )
         is_featured = False
 
-    evaluation, created = Evaluation.objects.update_or_create(
-        submission_version=version,
-        defaults={
-            "evaluator": evaluator,
-            "rubric": rubric,
-            "total_score": total_score,
-            "general_feedback": general_feedback.strip(),
-            "status": evaluation_status,
-            "published_at": published_at,
-        },
+    evaluation, created = (
+        Evaluation.objects.update_or_create(
+            submission_version=version,
+            defaults={
+                "evaluator": evaluator,
+                "rubric": rubric,
+                "total_score": total_score,
+                "general_feedback": (
+                    general_feedback.strip()
+                ),
+                "status": evaluation_status,
+                "published_at": published_at,
+            },
+        )
     )
 
     submission.status = submission_status
@@ -138,7 +186,10 @@ def _apply_evaluation(
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def evaluate_submission(request, submission_id):
+def evaluate_submission(
+    request,
+    submission_id,
+):
     """تقييم عمل طالبة واحدة."""
 
     _ensure_teacher(request.user)
@@ -162,16 +213,23 @@ def evaluate_submission(request, submission_id):
         existing_evaluation = None
 
     initial_data = {
-        "decision": _decision_from_submission(submission),
+        "decision": (
+            _decision_from_submission(submission)
+        ),
     }
 
     if existing_evaluation is not None:
         initial_data.update(
             {
-                "rubric": existing_evaluation.rubric,
-                "total_score": existing_evaluation.total_score,
+                "rubric": (
+                    existing_evaluation.rubric
+                ),
+                "total_score": (
+                    existing_evaluation.total_score
+                ),
                 "general_feedback": (
-                    existing_evaluation.general_feedback
+                    existing_evaluation
+                    .general_feedback
                 ),
             }
         )
@@ -189,12 +247,24 @@ def evaluate_submission(request, submission_id):
                     submission=submission,
                     version=version,
                     evaluator=request.user,
-                    rubric=form.cleaned_data["rubric"],
-                    total_score=form.cleaned_data["total_score"],
-                    general_feedback=form.cleaned_data[
-                        "general_feedback"
-                    ],
-                    decision=form.cleaned_data["decision"],
+                    rubric=(
+                        form.cleaned_data["rubric"]
+                    ),
+                    total_score=(
+                        form.cleaned_data[
+                            "total_score"
+                        ]
+                    ),
+                    general_feedback=(
+                        form.cleaned_data[
+                            "general_feedback"
+                        ]
+                    ),
+                    decision=(
+                        form.cleaned_data[
+                            "decision"
+                        ]
+                    ),
                 )
 
             messages.success(
@@ -203,7 +273,10 @@ def evaluate_submission(request, submission_id):
             )
 
             return redirect(
-                "portfolios:teacher_submission_detail",
+                (
+                    "portfolios:"
+                    "teacher_submission_detail"
+                ),
                 submission_id=submission.id,
             )
     else:
@@ -217,7 +290,9 @@ def evaluate_submission(request, submission_id):
         "submission": submission,
         "version": version,
         "form": form,
-        "existing_evaluation": existing_evaluation,
+        "existing_evaluation": (
+            existing_evaluation
+        ),
     }
 
     return render(
@@ -234,13 +309,16 @@ def bulk_evaluate_submissions(request):
 
     _ensure_teacher(request.user)
 
-    selected_ids = request.POST.getlist("submission_ids")
+    selected_ids = request.POST.getlist(
+        "submission_ids"
+    )
 
     if not selected_ids:
         messages.error(
             request,
             "حددي عملًا واحدًا على الأقل للتقييم.",
         )
+
         return redirect(
             "portfolios:teacher_submissions"
         )
@@ -257,14 +335,19 @@ def bulk_evaluate_submissions(request):
     )
 
     if not form.is_valid():
-        error_message = "تحققي من بيانات التقييم الجماعي."
+        error_message = (
+            "تحققي من بيانات التقييم الجماعي."
+        )
 
         for field_errors in form.errors.values():
             if field_errors:
                 error_message = field_errors[0]
                 break
 
-        messages.error(request, error_message)
+        messages.error(
+            request,
+            error_message,
+        )
 
         return redirect(
             "portfolios:teacher_submissions"
@@ -274,9 +357,12 @@ def bulk_evaluate_submissions(request):
 
     with transaction.atomic():
         for submission in submissions:
-            version = submission.versions.filter(
-                is_current=True
-            ).first()
+            version = (
+                submission.versions.filter(
+                    is_current=True
+                )
+                .first()
+            )
 
             if version is None:
                 continue
@@ -285,21 +371,117 @@ def bulk_evaluate_submissions(request):
                 submission=submission,
                 version=version,
                 evaluator=request.user,
-                rubric=form.cleaned_data["rubric"],
-                total_score=form.cleaned_data["total_score"],
-                general_feedback=form.cleaned_data[
-                    "general_feedback"
+                rubric=form.cleaned_data[
+                    "rubric"
                 ],
-                decision=form.cleaned_data["decision"],
+                total_score=form.cleaned_data[
+                    "total_score"
+                ],
+                general_feedback=(
+                    form.cleaned_data[
+                        "general_feedback"
+                    ]
+                ),
+                decision=form.cleaned_data[
+                    "decision"
+                ],
             )
 
             evaluated_count += 1
 
     messages.success(
         request,
-        f"تم تقييم واعتماد {evaluated_count} عمل بنجاح.",
+        (
+            f"تم تقييم واعتماد "
+            f"{evaluated_count} عمل بنجاح."
+        ),
     )
 
     return redirect(
         "portfolios:teacher_submissions"
+    )
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def award_badge(request):
+    """منح شارة لطالبة من داخل لوحة المعلمة."""
+
+    _ensure_teacher(request.user)
+
+    if request.method == "POST":
+        form = BadgeAwardForm(
+            request.POST,
+            teacher=request.user,
+        )
+
+        if form.is_valid():
+            portfolio = (
+                form.cleaned_data["portfolio"]
+            )
+            badge = form.cleaned_data["badge"]
+            reason = (
+                form.cleaned_data["reason"].strip()
+            )
+
+            existing_award = (
+                StudentBadge.objects.filter(
+                    portfolio=portfolio,
+                    badge=badge,
+                    submission__isnull=True,
+                )
+                .select_related(
+                    "portfolio__student",
+                    "badge",
+                )
+                .first()
+            )
+
+            student_name = (
+                portfolio.student.get_full_name()
+                or portfolio.student.username
+            )
+
+            if existing_award is not None:
+                messages.warning(
+                    request,
+                    (
+                        "سبق منح شارة "
+                        f"«{badge.name}» للطالبة "
+                        f"{student_name}."
+                    ),
+                )
+            else:
+                with transaction.atomic():
+                    StudentBadge.objects.create(
+                        portfolio=portfolio,
+                        badge=badge,
+                        submission=None,
+                        awarded_by=request.user,
+                        reason=reason,
+                    )
+
+                messages.success(
+                    request,
+                    (
+                        f"تم منح شارة "
+                        f"«{badge.name}» للطالبة "
+                        f"{student_name} بنجاح."
+                    ),
+                )
+
+            return redirect(
+                "assessment:award_badge"
+            )
+    else:
+        form = BadgeAwardForm(
+            teacher=request.user,
+        )
+
+    return render(
+        request,
+        "assessment/award_badge.html",
+        {
+            "form": form,
+        },
     )

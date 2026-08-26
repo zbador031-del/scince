@@ -4,7 +4,10 @@ from django.core.validators import (
     MinValueValidator,
 )
 
-from .models import Rubric
+from academics.models import TeachingAssignment
+from portfolios.models import Portfolio
+
+from .models import Badge, Rubric
 
 
 class EvaluationDecision:
@@ -74,18 +77,35 @@ class EvaluationForm(forms.Form):
         ),
     )
 
-    def __init__(self, *args, teacher=None, subject=None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        teacher=None,
+        subject=None,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
-        rubrics = Rubric.objects.filter(is_active=True)
+        rubrics = Rubric.objects.filter(
+            is_active=True
+        )
 
         if subject is not None:
-            rubrics = rubrics.filter(subject=subject)
+            rubrics = rubrics.filter(
+                subject=subject
+            )
 
-        if teacher is not None and not teacher.is_superuser:
-            rubrics = rubrics.filter(created_by=teacher)
+        if (
+            teacher is not None
+            and not teacher.is_superuser
+        ):
+            rubrics = rubrics.filter(
+                created_by=teacher
+            )
 
-        self.fields["rubric"].queryset = rubrics.order_by("title")
+        self.fields["rubric"].queryset = (
+            rubrics.order_by("title")
+        )
 
 
 class BulkEvaluationForm(EvaluationForm):
@@ -102,7 +122,10 @@ class BulkEvaluationForm(EvaluationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["general_feedback"].required = True
+        self.fields[
+            "general_feedback"
+        ].required = True
+
         self.fields["decision"].choices = [
             (
                 EvaluationDecision.APPROVED,
@@ -117,3 +140,113 @@ class BulkEvaluationForm(EvaluationForm):
                 "اعتماد الأعمال وتصنيفها متميزة",
             ),
         ]
+
+
+class PortfolioChoiceField(
+    forms.ModelChoiceField
+):
+    """عرض اسم الطالبة وفصلها في قائمة الاختيار."""
+
+    def label_from_instance(self, portfolio):
+        student_name = (
+            portfolio.student.get_full_name()
+            or portfolio.student.username
+        )
+
+        return (
+            f"{student_name} — "
+            f"{portfolio.classroom}"
+        )
+
+
+class BadgeAwardForm(forms.Form):
+    """نموذج منح شارة لطالبة من لوحة المعلمة."""
+
+    portfolio = PortfolioChoiceField(
+        label="الطالبة",
+        queryset=Portfolio.objects.none(),
+        empty_label="اختاري الطالبة",
+        widget=forms.Select(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    badge = forms.ModelChoiceField(
+        label="الشارة",
+        queryset=Badge.objects.none(),
+        empty_label="اختاري الشارة",
+        widget=forms.Select(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    reason = forms.CharField(
+        label="سبب منح الشارة",
+        required=True,
+        max_length=500,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 4,
+                "maxlength": "500",
+                "placeholder": (
+                    "اكتبي سبب منح الشارة للطالبة..."
+                ),
+            }
+        ),
+    )
+
+    def __init__(
+        self,
+        *args,
+        teacher=None,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+
+        portfolios = (
+            Portfolio.objects.filter(
+                is_active=True,
+                student__is_active=True,
+            )
+            .select_related(
+                "student",
+                "classroom",
+                "classroom__grade_level",
+            )
+        )
+
+        if (
+            teacher is not None
+            and not teacher.is_superuser
+        ):
+            classroom_ids = (
+                TeachingAssignment.objects.filter(
+                    teacher=teacher,
+                    is_active=True,
+                )
+                .values_list(
+                    "classroom_id",
+                    flat=True,
+                )
+            )
+
+            portfolios = portfolios.filter(
+                classroom_id__in=classroom_ids
+            )
+
+        self.fields["portfolio"].queryset = (
+            portfolios.order_by(
+                "classroom__grade_level__order",
+                "classroom__name",
+                "student__first_name",
+                "student__last_name",
+                "student__username",
+            )
+        )
+
+        self.fields["badge"].queryset = (
+            Badge.objects.filter(
+                is_active=True
+            ).order_by("name")
+        )

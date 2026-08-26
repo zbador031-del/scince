@@ -20,4 +20,11 @@ urlpatterns = [
         views.bulk_evaluate_submissions,
         name="bulk_evaluate_submissions",
     ),
+
+    # منح شارة لطالبة من لوحة المعلمة
+    path(
+        "badges/award/",
+        views.award_badge,
+        name="award_badge",
+    ),
 ]

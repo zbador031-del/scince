@@ -87,7 +87,7 @@
             </article>
 
 
-            <!-- الأنشطة المطلوبة -->
+            <!-- الأنشطة المطلوبة: مؤجلة للمرحلة الثانية -->
             <article class="dashboard-card">
                 <div class="feature-icon" aria-hidden="true">
                     📝
@@ -96,15 +96,15 @@
                 <h2>الأنشطة المطلوبة</h2>
 
                 <p>
-                    تابعي الأنشطة الحالية ومواعيد
-                    التسليم والتعليمات.
+                    ستتاح متابعة الأنشطة ومواعيد التسليم
+                    في المرحلة الثانية من تطوير الدفتر.
                 </p>
 
                 <span
                     class="button button-secondary"
                     aria-disabled="true"
                 >
-                    سيتم التفعيل
+                    مؤجلة للمرحلة الثانية
                 </span>
             </article>
 
@@ -122,12 +122,12 @@
                     وطوري أعمالك وأعيدي تسليمها.
                 </p>
 
-                <span
-                    class="button button-secondary"
-                    aria-disabled="true"
+                <a
+                    href="{% url 'intelligence:my_student_analytics_report' %}#feedback"
+                    class="button button-primary"
                 >
-                    سيتم التفعيل
-                </span>
+                    عرض التغذية الراجعة
+                </a>
             </article>
 
 
@@ -144,12 +144,12 @@
                     والأعمال المصنفة متميزة.
                 </p>
 
-                <span
-                    class="button button-secondary"
-                    aria-disabled="true"
+                <a
+                    href="{% url 'intelligence:my_student_analytics_report' %}#badges"
+                    class="button button-primary"
                 >
-                    سيتم التفعيل
-                </span>
+                    عرض الشارات والإنجازات
+                </a>
             </article>
 
 
@@ -166,12 +166,12 @@
                     وتطور أدائك خلال الفصل.
                 </p>
 
-                <span
-                    class="button button-secondary"
-                    aria-disabled="true"
+                <a
+                    href="{% url 'intelligence:my_student_analytics_report' %}#progress"
+                    class="button button-primary"
                 >
-                    سيتم التفعيل
-                </span>
+                    عرض تقدمي العلمي
+                </a>
             </article>
 
         </div>

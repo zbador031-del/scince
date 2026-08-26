@@ -21,11 +21,18 @@ urlpatterns = [
         name="student_reports_list",
     ),
 
-    # التقرير التحليلي الفردي لطالبة
+    # التقرير التحليلي الفردي لطالبة من جهة المعلمة
     path(
         "teacher/students/<int:portfolio_id>/report/",
         student_reports.student_analytics_report,
         name="student_analytics_report",
+    ),
+
+    # التقرير الشخصي للطالبة المسجلة
+    path(
+        "student/my-report/",
+        student_reports.my_student_analytics_report,
+        name="my_student_analytics_report",
     ),
 
     # أرشيف تقارير عالمة الشهر

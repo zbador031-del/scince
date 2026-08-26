@@ -47,12 +47,21 @@
         </div>
 
         <div class="student-report-actions">
-            <a
-                href="{% url 'intelligence:teacher_analytics' %}"
-                class="student-report-back"
-            >
-                العودة للتحليلات
-            </a>
+            {% if request.user.role == "student" %}
+    <a
+        href="{% url 'accounts:student_dashboard' %}"
+        class="student-report-back"
+    >
+        العودة إلى لوحة الطالبة
+    </a>
+{% else %}
+    <a
+        href="{% url 'intelligence:teacher_analytics' %}"
+        class="student-report-back"
+    >
+        العودة للتحليلات
+    </a>
+{% endif %}
 
             <button
                 type="button"
@@ -292,7 +301,7 @@
             {% endif %}
         </article>
 
-        <article class="student-report-panel">
+        <article id="feedback" class="student-report-panel">
             <div class="student-report-heading">
                 <div>
                     <h2>احتياجات الدعم</h2>
@@ -443,7 +452,7 @@
             {% endif %}
         </article>
 
-        <article class="student-report-panel">
+        <article id="badges" class="student-report-panel">
             <div class="student-report-heading">
                 <div>
                     <h2>الشارات التحفيزية</h2>

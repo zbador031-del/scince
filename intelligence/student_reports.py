@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Avg, Count, Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 
@@ -61,11 +62,7 @@ def student_analytics_report(
 ):
     """التقرير التحليلي الفردي للطالبة."""
 
-    _ensure_teacher(request.user)
 
-    classroom_ids = set(
-        _teacher_classroom_ids(request.user)
-    )
 
     portfolio = get_object_or_404(
         Portfolio.objects.select_related(
@@ -79,12 +76,24 @@ def student_analytics_report(
         is_active=True,
     )
 
-    # منع المعلمة من فتح تقرير فصل غير مسند إليها
-    if portfolio.classroom_id not in classroom_ids:
-        raise PermissionDenied(
-            "لا تملكين صلاحية الاطلاع على تقرير هذه الطالبة."
+    # الطالبة تستطيع مشاهدة تقريرها فقط
+    is_student_owner = (
+        getattr(request.user, "role", None) == "student"
+        and portfolio.student_id == request.user.id
+    )
+
+    # غير الطالبة المالكة يجب أن تكون معلمة مخولة بهذا الفصل
+    if not is_student_owner:
+        _ensure_teacher(request.user)
+
+        classroom_ids = set(
+            _teacher_classroom_ids(request.user)
         )
 
+        if portfolio.classroom_id not in classroom_ids:
+            raise PermissionDenied(
+                "لا تملكين صلاحية الاطلاع على تقرير هذه الطالبة."
+            )
     submissions = (
         Submission.objects.filter(
             portfolio=portfolio
@@ -441,6 +450,40 @@ def student_analytics_report(
         "intelligence/student_analytics_report.html",
         context,
     )
+
+@login_required
+@require_GET
+def my_student_analytics_report(request):
+    """عرض التقرير التحليلي للطالبة المسجلة حاليًا فقط."""
+
+    if getattr(request.user, "role", None) != "student":
+        raise PermissionDenied(
+            "هذه الصفحة مخصصة للطالبات فقط."
+        )
+
+    portfolio = (
+        Portfolio.objects.filter(
+            student=request.user,
+            is_active=True,
+        )
+        .order_by(
+            "-academic_year__is_current",
+            "-pk",
+        )
+        .first()
+    )
+
+    if portfolio is None:
+        raise Http404(
+            "لا يوجد دفتر علوم نشط مرتبط بحساب الطالبة."
+        )
+
+    return student_analytics_report(
+        request,
+        portfolio.pk,
+    )
+
+
 @login_required
 @require_GET
 def student_reports_list(request):
