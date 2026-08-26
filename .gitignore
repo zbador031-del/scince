@@ -11,3 +11,5 @@ staticfiles/
 # ملفات حسابات الطالبات السرية
 student_accounts_*.xlsx
 *.xlsx
+# نسخ احتياطية لبيانات الطالبات
+backups/
