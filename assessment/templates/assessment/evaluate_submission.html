@@ -1,0 +1,328 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+تقييم عمل الطالبة | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container evaluation-page">
+
+    <section class="evaluation-hero">
+        <div>
+            <span class="evaluation-badge">
+                📝 تقييم عمل طالبة
+            </span>
+
+            <h1>{{ submission.title }}</h1>
+
+            <p>
+                الطالبة:
+                <strong>
+                    {{ submission.portfolio.student.get_full_name|default:submission.portfolio.student.username }}
+                </strong>
+                —
+                {{ submission.portfolio.classroom }}
+            </p>
+        </div>
+
+        <a
+            href="{% url 'portfolios:teacher_submission_detail' submission.id %}"
+            class="evaluation-back-link"
+        >
+            العودة إلى العمل
+        </a>
+    </section>
+
+    <section class="evaluation-layout">
+
+        <div class="evaluation-work-column">
+
+            <article class="evaluation-panel">
+                <div class="evaluation-panel-heading">
+                    <div>
+                        <h2>بيانات العمل</h2>
+                        <p>
+                            تفاصيل العمل والنسخة الحالية.
+                        </p>
+                    </div>
+
+                    <span
+                        class="submission-status
+                        status-{{ submission.status }}"
+                    >
+                        {{ submission.get_status_display }}
+                    </span>
+                </div>
+
+                <dl class="evaluation-details">
+                    <div>
+                        <dt>عنوان العمل</dt>
+                        <dd>{{ submission.title }}</dd>
+                    </div>
+
+                    <div>
+                        <dt>رقم النسخة</dt>
+                        <dd>{{ version.version_number }}</dd>
+                    </div>
+
+                    <div>
+                        <dt>تاريخ الرفع</dt>
+                        <dd>
+                            {{ version.submitted_at|date:"Y/m/d - H:i" }}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>النشاط المرتبط</dt>
+                        <dd>
+                            {{ submission.activity|default:"غير محدد" }}
+                        </dd>
+                    </div>
+                </dl>
+
+                {% if submission.description %}
+                    <div class="evaluation-text-block">
+                        <h3>وصف العمل</h3>
+                        <p>{{ submission.description }}</p>
+                    </div>
+                {% endif %}
+
+                {% if version.notes %}
+                    <div class="evaluation-text-block">
+                        <h3>ملاحظات الطالبة</h3>
+                        <p>{{ version.notes }}</p>
+                    </div>
+                {% endif %}
+
+                {% if version.reflection %}
+                    <div class="evaluation-text-block">
+                        <h3>التأمل الذاتي</h3>
+                        <p>{{ version.reflection }}</p>
+                    </div>
+                {% endif %}
+            </article>
+
+            <article class="evaluation-panel">
+                <div class="evaluation-panel-heading">
+                    <div>
+                        <h2>مرفقات العمل</h2>
+                        <p>
+                            الملفات والصور المرفوعة في النسخة الحالية.
+                        </p>
+                    </div>
+                </div>
+
+                {% if version.attachments.all %}
+                    <div class="evaluation-attachments">
+                        {% for attachment in version.attachments.all %}
+                            <a
+                                href="{{ attachment.file.url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="evaluation-attachment"
+                            >
+                                <span class="evaluation-attachment-icon">
+                                    {% if attachment.media_type == "image" %}
+                                        🖼️
+                                    {% elif attachment.media_type == "video" %}
+                                        🎬
+                                    {% elif attachment.media_type == "audio" %}
+                                        🎧
+                                    {% elif attachment.media_type == "presentation" %}
+                                        📊
+                                    {% else %}
+                                        📄
+                                    {% endif %}
+                                </span>
+
+                                <span>
+                                    <strong>
+                                        {{ attachment.original_filename }}
+                                    </strong>
+
+                                    <small>
+                                        {{ attachment.get_media_type_display }}
+                                    </small>
+                                </span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="evaluation-empty">
+                        لا توجد مرفقات في النسخة الحالية.
+                    </div>
+                {% endif %}
+            </article>
+
+            {% if version.ai_used %}
+                <article class="evaluation-panel evaluation-ai-panel">
+                    <div class="evaluation-panel-heading">
+                        <div>
+                            <h2>استخدام الذكاء الاصطناعي</h2>
+                            <p>
+                                إفصاح الطالبة عن استخدام أدوات الذكاء الاصطناعي.
+                            </p>
+                        </div>
+                    </div>
+
+                    <dl class="evaluation-details">
+                        <div>
+                            <dt>الأدوات المستخدمة</dt>
+                            <dd>
+                                {{ version.ai_tools|default:"غير محددة" }}
+                            </dd>
+                        </div>
+                    </dl>
+
+                    {% if version.ai_usage_description %}
+                        <div class="evaluation-text-block">
+                            <h3>وصف الاستخدام</h3>
+                            <p>
+                                {{ version.ai_usage_description }}
+                            </p>
+                        </div>
+                    {% endif %}
+                </article>
+            {% endif %}
+        </div>
+
+        <div class="evaluation-form-column">
+            <article class="evaluation-panel evaluation-form-panel">
+                <div class="evaluation-panel-heading">
+                    <div>
+                        <h2>
+                            {% if existing_evaluation %}
+                                تعديل التقييم
+                            {% else %}
+                                إضافة التقييم
+                            {% endif %}
+                        </h2>
+
+                        <p>
+                            اختاري سلم التقدير وأدخلي الدرجة
+                            والتغذية الراجعة.
+                        </p>
+                    </div>
+                </div>
+
+                {% if existing_evaluation %}
+                    <div class="evaluation-existing-notice">
+                        يوجد تقييم محفوظ لهذه النسخة.
+                        سيؤدي الحفظ إلى تحديثه.
+                    </div>
+                {% endif %}
+
+                <form
+                    method="post"
+                    class="evaluation-form"
+                    novalidate
+                >
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="evaluation-form-errors">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="evaluation-field">
+                        <label for="{{ form.rubric.id_for_label }}">
+                            {{ form.rubric.label }}
+                        </label>
+
+                        {{ form.rubric }}
+
+                        {% if form.rubric.help_text %}
+                            <small>
+                                {{ form.rubric.help_text }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in form.rubric.errors %}
+                            <span class="evaluation-field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="evaluation-field">
+                        <label for="{{ form.total_score.id_for_label }}">
+                            {{ form.total_score.label }}
+                        </label>
+
+                        {{ form.total_score }}
+
+                        {% if form.total_score.help_text %}
+                            <small>
+                                {{ form.total_score.help_text }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in form.total_score.errors %}
+                            <span class="evaluation-field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="evaluation-field">
+                        <label for="{{ form.general_feedback.id_for_label }}">
+                            {{ form.general_feedback.label }}
+                        </label>
+
+                        {{ form.general_feedback }}
+
+                        {% if form.general_feedback.help_text %}
+                            <small>
+                                {{ form.general_feedback.help_text }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in form.general_feedback.errors %}
+                            <span class="evaluation-field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="evaluation-field">
+                        <label for="{{ form.decision.id_for_label }}">
+                            {{ form.decision.label }}
+                        </label>
+
+                        {{ form.decision }}
+
+                        {% if form.decision.help_text %}
+                            <small>
+                                {{ form.decision.help_text }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in form.decision.errors %}
+                            <span class="evaluation-field-error">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="evaluation-form-actions">
+                        <button
+                            type="submit"
+                            class="evaluation-submit"
+                        >
+                            حفظ التقييم
+                        </button>
+
+                        <a
+                            href="{% url 'portfolios:teacher_submission_detail' submission.id %}"
+                            class="evaluation-cancel"
+                        >
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </article>
+        </div>
+    </section>
+</main>
+{% endblock %}

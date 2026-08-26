@@ -1,0 +1,195 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+تقارير الطالبات | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container reports-list-page">
+
+    <section class="reports-list-hero">
+        <div>
+            <span class="reports-list-badge">
+                📊 التقارير الفردية
+            </span>
+
+            <h1>تقارير الطالبات</h1>
+
+            <p>
+                البحث عن الطالبة واستعراض تقريرها
+                التحليلي الفردي.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'intelligence:teacher_analytics' %}"
+            class="reports-list-back"
+        >
+            العودة إلى التحليلات
+        </a>
+    </section>
+
+    <section class="reports-list-filter-panel">
+        <form
+            method="get"
+            class="reports-list-filter-form"
+        >
+            <div class="reports-list-field">
+                <label for="student-search">
+                    البحث عن طالبة
+                </label>
+
+                <input
+                    type="search"
+                    id="student-search"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="الاسم أو اسم المستخدم"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="reports-list-field">
+                <label for="classroom-filter">
+                    الصف والفصل
+                </label>
+
+                <select
+                    id="classroom-filter"
+                    name="classroom"
+                >
+                    <option value="">
+                        جميع الصفوف والفصول
+                    </option>
+
+                    {% for classroom in classrooms %}
+                        <option
+                            value="{{ classroom.classroom_id }}"
+                            {% if selected_classroom == classroom.classroom_id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ classroom.classroom__grade_level__name }}
+                            /
+                            {{ classroom.classroom__name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="reports-list-filter-actions">
+                <button
+                    type="submit"
+                    class="reports-list-submit"
+                >
+                    تطبيق
+                </button>
+
+                {% if selected_classroom or search_query %}
+                    <a
+                        href="{{ request.path }}"
+                        class="reports-list-reset"
+                    >
+                        إلغاء التصفية
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </section>
+
+    <section class="reports-list-panel">
+        <div class="reports-list-heading">
+            <div>
+                <h2>سجل الطالبات</h2>
+
+                <p>
+                    عدد النتائج:
+                    <strong>{{ result_count }}</strong>
+                </p>
+            </div>
+        </div>
+
+        {% if portfolios %}
+            <div class="reports-list-table-wrap">
+                <table class="reports-list-table">
+                    <thead>
+                        <tr>
+                            <th>الطالبة</th>
+                            <th>اسم المستخدم</th>
+                            <th>الصف والفصل</th>
+                            <th>الأعمال</th>
+                            <th>المعتمدة</th>
+                            <th>التقييمات</th>
+                            <th>التقرير</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for portfolio in portfolios %}
+                            <tr>
+                                <td>
+                                    <div class="reports-list-student">
+                                        <span>
+                                            {% if portfolio.student.avatar %}
+                                                <img
+                                                    src="{{ portfolio.student.avatar.url }}"
+                                                    alt=""
+                                                >
+                                            {% else %}
+                                                👩‍🎓
+                                            {% endif %}
+                                        </span>
+
+                                        <strong>
+                                            {{ portfolio.student.get_full_name|default:portfolio.student.username }}
+                                        </strong>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {{ portfolio.student.username }}
+                                </td>
+
+                                <td>
+                                    {{ portfolio.classroom }}
+                                </td>
+
+                                <td>
+                                    {{ portfolio.submission_count }}
+                                </td>
+
+                                <td>
+                                    {{ portfolio.approved_count }}
+                                </td>
+
+                                <td>
+                                    {{ portfolio.evaluation_count }}
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="{% url 'intelligence:student_analytics_report' portfolio.id %}"
+                                        class="reports-list-report-link"
+                                    >
+                                        فتح التقرير
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="reports-list-empty">
+                <span>🔍</span>
+
+                <h3>لا توجد نتائج</h3>
+
+                <p>
+                    تحققي من اسم الطالبة أو الفصل المحدد.
+                </p>
+            </div>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

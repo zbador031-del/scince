@@ -1,0 +1,141 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}
+    {% if subtitle %}
+        {{ subtitle }} |
+    {% endif %}
+    {{ title }} | إدارة دفتر العلوم الذكي
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+
+    <style>
+        .admin-honor-ticker {
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+            min-height: 52px;
+            overflow: hidden;
+            color: #ffffff;
+            background: linear-gradient(
+                90deg,
+                #075f5b,
+                #11877f,
+                #075f5b
+            );
+            border-top: 2px solid #d9ad38;
+            border-bottom: 2px solid #d9ad38;
+        }
+
+        .admin-honor-badge {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            min-width: 165px;
+            padding: 10px 18px;
+            color: #073e3b;
+            font-weight: 800;
+            white-space: nowrap;
+            background: linear-gradient(
+                135deg,
+                #ffe8a3,
+                #d9ad38
+            );
+        }
+
+        .admin-honor-window {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .admin-honor-content {
+            display: inline-flex;
+            align-items: center;
+            width: max-content;
+            min-width: max-content;
+            font-size: 1rem;
+            font-weight: 700;
+            white-space: nowrap;
+            animation: admin-honor-move 20s linear infinite;
+        }
+
+        .admin-honor-content span {
+            display: inline-block;
+            padding-inline: 55px;
+        }
+
+        .admin-honor-ticker:hover .admin-honor-content {
+            animation-play-state: paused;
+        }
+
+        @keyframes admin-honor-move {
+            from {
+                transform: translateX(-50%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .admin-honor-badge {
+                min-width: 120px;
+                padding: 9px;
+                font-size: 0.85rem;
+            }
+
+            .admin-honor-content {
+                font-size: 0.88rem;
+                animation-duration: 16s;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .admin-honor-content {
+                animation: none;
+                white-space: normal;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block branding %}
+    <div id="site-name">
+        <a href="{% url 'admin:index' %}">
+            إدارة دفتر العلوم الذكي
+        </a>
+    </div>
+{% endblock %}
+
+{% block nav-global %}
+    {{ block.super }}
+
+    {% if monthly_honor_ticker %}
+        <section
+            class="admin-honor-ticker"
+            aria-label="شريط عالمة الشهر"
+        >
+            <div class="admin-honor-badge">
+                ⭐ عالمة الشهر
+            </div>
+
+            <div class="admin-honor-window">
+                <div class="admin-honor-content">
+                    <span>
+                        {{ monthly_honor_ticker.public_ticker_text }}
+                    </span>
+
+                    <span aria-hidden="true">
+                        {{ monthly_honor_ticker.public_ticker_text }}
+                    </span>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

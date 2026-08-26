@@ -1,0 +1,314 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+تقرير عالمة الشهر
+{% endblock %}
+
+{% block content %}
+<style>
+    .monthly-report-page {
+        width: min(950px, 94%);
+        margin: 40px auto;
+    }
+
+    .report-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-bottom: 20px;
+    }
+
+    .report-action {
+        padding: 11px 20px;
+        color: #ffffff;
+        font: inherit;
+        font-weight: 700;
+        text-decoration: none;
+        background: #11877f;
+        border: 0;
+        border-radius: 11px;
+        cursor: pointer;
+    }
+
+    .report-action--secondary {
+        color: #073e3b;
+        background: #e8c45f;
+    }
+
+    .monthly-report {
+        overflow: hidden;
+        background: #ffffff;
+        border: 2px solid #d9ad38;
+        border-radius: 24px;
+        box-shadow: 0 14px 40px rgb(24 75 72 / 14%);
+    }
+
+    .monthly-report__identity {
+        padding: 26px;
+        text-align: center;
+        color: #ffffff;
+        background: linear-gradient(
+            135deg,
+            #075f5b,
+            #11877f
+        );
+        border-bottom: 5px solid #d9ad38;
+    }
+
+    .monthly-report__identity p {
+        margin: 5px 0;
+    }
+
+    .monthly-report__identity h1 {
+        margin: 18px 0 6px;
+        color: #ffe8a3;
+    }
+
+    .monthly-report__body {
+        padding: 32px;
+    }
+
+    .student-honor-card {
+        margin-bottom: 28px;
+        padding: 24px;
+        text-align: center;
+        background: linear-gradient(
+            135deg,
+            #fff9e8,
+            #f0fbf9
+        );
+        border: 1px solid #e8c45f;
+        border-radius: 18px;
+    }
+
+    .student-honor-card__icon {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 3rem;
+    }
+
+    .student-honor-card h2 {
+        margin: 0 0 8px;
+        color: #075f5b;
+    }
+
+    .report-indicators {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .report-indicator {
+        padding: 20px 12px;
+        text-align: center;
+        background: #f2faf9;
+        border: 1px solid #d4e9e6;
+        border-radius: 15px;
+    }
+
+    .report-indicator strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #075f5b;
+        font-size: 1.35rem;
+    }
+
+    .report-section {
+        margin-top: 22px;
+        padding: 20px;
+        background: #fbfdfd;
+        border-right: 5px solid #11877f;
+        border-radius: 12px;
+    }
+
+    .report-section h3 {
+        margin-top: 0;
+        color: #075f5b;
+    }
+
+    .monthly-report__footer {
+        padding: 18px 28px;
+        text-align: center;
+        color: #526d6a;
+        background: #f0f7f6;
+        border-top: 1px solid #d7e6e4;
+    }
+
+    @media (max-width: 700px) {
+        .report-indicators {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .monthly-report__body {
+            padding: 18px;
+        }
+    }
+
+    @media print {
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        nav,
+        footer,
+        .site-header,
+        .main-header,
+        .honor-ticker,
+        .report-actions {
+            display: none !important;
+        }
+
+        body {
+            background: #ffffff !important;
+        }
+
+        .monthly-report-page {
+            width: 100%;
+            margin: 0;
+        }
+
+        .monthly-report {
+            box-shadow: none;
+            break-inside: avoid;
+        }
+    }
+</style>
+
+<main class="monthly-report-page">
+    <div class="report-actions">
+        <a
+            class="report-action report-action--secondary"
+            href="{% url 'intelligence:monthly_honor_archive' %}"
+        >
+            العودة إلى الأرشيف
+        </a>
+
+        <button
+            class="report-action"
+            type="button"
+            onclick="window.print()"
+        >
+            طباعة أو حفظ PDF
+        </button>
+    </div>
+
+    <article class="monthly-report">
+        <div class="monthly-report__identity">
+            <p>المملكة العربية السعودية</p>
+            <p>وزارة التعليم</p>
+            <p>الابتدائية السادسة والثلاثون بخميس مشيط</p>
+
+            <h1>تقرير عالمة الشهر</h1>
+
+            <p>{{ monthly_honor.hijri_month_label }}</p>
+        </div>
+
+        <div class="monthly-report__body">
+            <section class="student-honor-card">
+                <span class="student-honor-card__icon">
+                    🏆
+                </span>
+
+                <h2>
+                    {% if monthly_honor.student.get_full_name %}
+                        {{ monthly_honor.student.get_full_name }}
+                    {% else %}
+                        {{ monthly_honor.student.username }}
+                    {% endif %}
+                </h2>
+
+                <p>
+                    الفصل: {{ monthly_honor.classroom }}
+                </p>
+            </section>
+
+            <section class="report-indicators">
+                <div class="report-indicator">
+                    <strong>
+                        {{ monthly_honor.average_score|floatformat:2 }}
+                    </strong>
+                    متوسط التقييم من 20
+                </div>
+
+                <div class="report-indicator">
+                    <strong>
+                        {{ monthly_honor.completion_rate|floatformat:2 }}٪
+                    </strong>
+                    نسبة الإنجاز
+                </div>
+
+                <div class="report-indicator">
+                    <strong>
+                        {{ monthly_honor.improvement_rate|floatformat:2 }}٪
+                    </strong>
+                    نسبة التحسن
+                </div>
+
+                <div class="report-indicator">
+                    <strong>
+                        {{ monthly_honor.submitted_activities }}
+                    </strong>
+                    الأعمال المسلّمة
+                </div>
+
+                <div class="report-indicator">
+                    <strong>
+                        {{ monthly_honor.approved_activities }}
+                    </strong>
+                    الأعمال المعتمدة
+                </div>
+
+                <div class="report-indicator">
+                    <strong>
+                        {{ monthly_honor.featured_activities }}
+                    </strong>
+                    الأعمال المميزة
+                </div>
+            </section>
+
+            <section class="report-section">
+                <h3>سبب الاختيار</h3>
+
+                <p>
+                    {{ monthly_honor.selection_reason }}
+                </p>
+            </section>
+
+            <section class="report-section">
+                <h3>رسالة التكريم</h3>
+
+                <p>
+                    {{ monthly_honor.ticker_message }}
+                </p>
+            </section>
+
+            <section class="report-section">
+                <h3>مدة التقرير</h3>
+
+                <p>
+                    من {{ monthly_honor.month_start }}
+                    إلى {{ monthly_honor.month_end }}
+                </p>
+            </section>
+
+            <section class="report-section">
+                <h3>اعتماد التقرير</h3>
+
+                <p>
+                    {% if monthly_honor.approved_by %}
+                        {{ monthly_honor.approved_by.get_full_name|default:monthly_honor.approved_by.username }}
+                    {% else %}
+                        تم إنشاؤه واعتماده بواسطة النظام الآلي
+                    {% endif %}
+                </p>
+            </section>
+        </div>
+
+        <div class="monthly-report__footer">
+            إعداد وتصميم المعلمة / بدرية محمد الزهراني
+        </div>
+    </article>
+</main>
+{% endblock %}

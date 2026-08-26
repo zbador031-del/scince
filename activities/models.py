@@ -229,4 +229,4 @@ class ActivityAssignment(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.activity} - {self.classroom}"
+        return f"{self.activity} - {self.classroom}"    

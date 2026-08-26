@@ -166,6 +166,22 @@ class StudentProfile(models.Model):
         blank=True,
     )
 
+    def clean(self):
+        """تنظيف الحقول الاختيارية قبل التحقق والحفظ."""
+
+        super().clean()
+
+        self.email = (
+            self.email.strip().lower()
+            if self.email
+            else None
+        )
+
+        self.phone = (
+            self.phone.strip()
+            if self.phone
+            else None
+        )
     class Meta:
         verbose_name = "ملف طالبة"
         verbose_name_plural = "ملفات الطالبات"

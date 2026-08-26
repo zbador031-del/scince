@@ -1,11 +1,16 @@
 import os
+from dotenv import load_dotenv
+import os
 from pathlib import Path
 
 
 # المسار الأساسي للمشروع
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+load_dotenv(
+    BASE_DIR / ".env",
+    override=True,
+)
 # مفتاح الحماية
 # القيمة الافتراضية التالية للتطوير المحلي فقط
 SECRET_KEY = os.environ.get(
@@ -27,6 +32,8 @@ ALLOWED_HOSTS = [
 
 # التطبيقات المثبتة
 INSTALLED_APPS = [
+        "cloudinary_storage",
+    "cloudinary",
     # تطبيقات Django الأساسية
     "django.contrib.admin",
     "django.contrib.auth",
@@ -79,6 +86,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "intelligence.context_processors.monthly_honor_ticker",
             ],
         },
     },
@@ -160,3 +168,18 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "accounts:dashboard"
 LOGOUT_REDIRECT_URL = "accounts:home"
+
+STORAGES = {
+    "default": {
+        "BACKEND": (
+            "cloudinary_storage.storage."
+            "MediaCloudinaryStorage"
+        ),
+    },
+    "staticfiles": {
+        "BACKEND": (
+            "django.contrib.staticfiles.storage."
+            "StaticFilesStorage"
+        ),
+    },
+}

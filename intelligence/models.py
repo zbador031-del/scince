@@ -1,5 +1,9 @@
 from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator,
+)
 from django.db import models
 
 
@@ -76,7 +80,9 @@ class AIAnalysis(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        validators=[MinValueValidator(0)],
+        validators=[
+            MinValueValidator(0),
+        ],
     )
 
     confidence_score = models.DecimalField(
@@ -129,7 +135,7 @@ class AIAnalysis(models.Model):
 
 
 class AIUsageLog(models.Model):
-    """سجل استخدام خدمات الذكاء الاصطناعي دون حفظ البيانات الحساسة."""
+    """سجل استخدام خدمات الذكاء الاصطناعي."""
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -257,7 +263,9 @@ class PerformanceSnapshot(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        validators=[MinValueValidator(0)],
+        validators=[
+            MinValueValidator(0),
+        ],
     )
 
     risk_level = models.CharField(
@@ -285,7 +293,10 @@ class PerformanceSnapshot(models.Model):
         ordering = ["-generated_at"]
 
     def __str__(self):
-        return f"{self.portfolio.student} - {self.generated_at}"
+        return (
+            f"{self.portfolio.student} - "
+            f"{self.generated_at}"
+        )
 
 
 class Recommendation(models.Model):
@@ -382,3 +393,210 @@ class Recommendation(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class MonthlyHonor(models.Model):
+    """سجل عالمة الشهر والشريط والتقرير الشهري."""
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="monthly_honors",
+        limit_choices_to={"role": "student"},
+        verbose_name="الطالبة المكرمة",
+    )
+
+    classroom = models.ForeignKey(
+        "academics.Classroom",
+        on_delete=models.PROTECT,
+        related_name="monthly_honors",
+        verbose_name="الفصل",
+    )
+
+    month_start = models.DateField(
+        "بداية الشهر",
+        unique=True,
+    )
+
+    month_end = models.DateField(
+        "نهاية الشهر",
+    )
+
+    hijri_month_label = models.CharField(
+        "اسم الشهر الهجري",
+        max_length=100,
+        help_text="مثال: ربيع الأول 1448هـ",
+    )
+
+    average_score = models.DecimalField(
+        "متوسط التقييم من 20",
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(20),
+        ],
+    )
+
+    completion_rate = models.DecimalField(
+        "نسبة إنجاز الأنشطة",
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100),
+        ],
+    )
+
+    improvement_rate = models.DecimalField(
+        "نسبة التحسن",
+        max_digits=6,
+        decimal_places=2,
+        default=0,
+        validators=[
+            MinValueValidator(-100),
+            MaxValueValidator(100),
+        ],
+    )
+
+    submitted_activities = models.PositiveIntegerField(
+        "عدد الأنشطة المسلمة",
+        default=0,
+    )
+
+    approved_activities = models.PositiveIntegerField(
+        "عدد الأعمال المعتمدة",
+        default=0,
+    )
+
+    featured_activities = models.PositiveIntegerField(
+        "عدد الأعمال المتميزة",
+        default=0,
+    )
+
+    featured_submission = models.ForeignKey(
+        "portfolios.Submission",
+        on_delete=models.SET_NULL,
+        related_name="monthly_honor_records",
+        null=True,
+        blank=True,
+        verbose_name="أبرز عمل متميز",
+    )
+
+    selection_reason = models.TextField(
+        "سبب اختيار الطالبة",
+    )
+
+    ticker_message = models.CharField(
+        "رسالة الشريط المتحرك",
+        max_length=300,
+        blank=True,
+        help_text=(
+            "إذا تُركت فارغة سيُنشئ النظام عبارة افتراضية."
+        ),
+    )
+
+    publish_student_name = models.BooleanField(
+        "موافقة نشر الاسم الأول",
+        default=False,
+        help_text=(
+            "عند عدم التفعيل سيظهر: طالبة متميزة."
+        ),
+    )
+
+    is_approved = models.BooleanField(
+        "معتمد",
+        default=False,
+        db_index=True,
+    )
+
+    is_active_in_ticker = models.BooleanField(
+        "ظاهر في الشريط المتحرك",
+        default=False,
+        db_index=True,
+    )
+
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="approved_monthly_honors",
+        null=True,
+        blank=True,
+        verbose_name="اعتمد بواسطة",
+    )
+
+    approved_at = models.DateTimeField(
+        "تاريخ الاعتماد",
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        "تاريخ الإنشاء",
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        "آخر تحديث",
+        auto_now=True,
+    )
+
+    class Meta:
+        verbose_name = "عالمة الشهر"
+        verbose_name_plural = "عالمات الشهر"
+        ordering = ["-month_start"]
+
+    def clean(self):
+        if self.month_end < self.month_start:
+            raise ValidationError(
+                "نهاية الشهر يجب أن تكون بعد بدايته."
+            )
+
+        if (
+            self.is_active_in_ticker
+            and not self.is_approved
+        ):
+            raise ValidationError(
+                "يجب اعتماد التكريم قبل إظهاره في الشريط."
+            )
+
+        if (
+            self.featured_submission
+            and (
+                self.featured_submission
+                .portfolio.student_id
+                != self.student_id
+            )
+        ):
+            raise ValidationError(
+                "العمل المتميز لا يتبع الطالبة المختارة."
+            )
+
+    @property
+    def public_student_name(self):
+        if self.publish_student_name:
+            return (
+                self.student.first_name
+                or self.student.username
+            )
+
+        return "طالبة متميزة"
+
+    @property
+    def public_ticker_text(self):
+        if self.ticker_message:
+            return self.ticker_message
+
+        return (
+            f"عالمة الشهر: {self.public_student_name} "
+            f"من {self.classroom} — "
+            f"{self.selection_reason}"
+        )
+
+    def __str__(self):
+        return (
+            f"{self.hijri_month_label} - "
+            f"{self.student}"
+        )

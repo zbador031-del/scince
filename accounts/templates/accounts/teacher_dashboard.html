@@ -29,7 +29,6 @@
 
 
     <section aria-labelledby="teacher-tools-title">
-
         <div class="page-heading">
             <h2 id="teacher-tools-title">
                 أدوات المعلمة
@@ -153,12 +152,56 @@
                     وتطور أداء الطالبات.
                 </p>
 
-<a
-    class="button button-primary"
-    href="{% url 'intelligence:teacher_analytics' %}"
->
-    فتح المؤشرات والتحليلات
-</a>
+                <a
+                    class="button button-primary"
+                    href="{% url 'intelligence:teacher_analytics' %}"
+                >
+                    فتح المؤشرات والتحليلات
+                </a>
+            </article>
+
+
+            <!-- تقارير الطالبات -->
+            <article class="dashboard-card">
+                <div class="feature-icon" aria-hidden="true">
+                    📈
+                </div>
+
+                <h2>تقارير الطالبات</h2>
+
+                <p>
+                    عرض التقارير الفردية ومؤشرات
+                    تطور أداء كل طالبة.
+                </p>
+
+                <a
+                    class="button button-secondary"
+                    href="{% url 'intelligence:student_reports_list' %}"
+                >
+                    فتح تقارير الطالبات
+                </a>
+            </article>
+
+
+            <!-- عالمة الشهر -->
+            <article class="dashboard-card">
+                <div class="feature-icon" aria-hidden="true">
+                    🏆
+                </div>
+
+                <h2>تقارير عالمة الشهر</h2>
+
+                <p>
+                    استعراض عالمة الشهر وأرشيف التقارير
+                    والمؤشرات التي تم احتسابها تلقائيًا.
+                </p>
+
+                <a
+                    class="button button-primary"
+                    href="{% url 'intelligence:monthly_honor_archive' %}"
+                >
+                    فتح الأرشيف الشهري
+                </a>
             </article>
 
 

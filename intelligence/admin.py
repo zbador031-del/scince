@@ -1,8 +1,10 @@
 from django.contrib import admin
+from django.utils import timezone
 
 from .models import (
     AIAnalysis,
     AIUsageLog,
+    MonthlyHonor,
     PerformanceSnapshot,
     Recommendation,
 )
@@ -10,208 +12,153 @@ from .models import (
 
 @admin.register(AIAnalysis)
 class AIAnalysisAdmin(admin.ModelAdmin):
-    list_display = (
-        "submission_version",
-        "student_name",
-        "status",
-        "suggested_score",
-        "confidence_score",
-        "model_name",
-        "created_at",
-        "completed_at",
-    )
+    """إدارة التحليلات الذكية."""
 
-    list_filter = (
-        "status",
-        "provider_name",
-        "model_name",
-        "created_at",
-    )
-
-    search_fields = (
-        "submission_version__submission__title",
-        "submission_version__submission__portfolio__student__first_name",
-        "submission_version__submission__portfolio__student__last_name",
-        "summary",
-        "suggested_feedback",
-        "model_name",
-    )
-
-    list_select_related = (
-        "submission_version",
-        "submission_version__submission",
-        "submission_version__submission__portfolio",
-        "submission_version__submission__portfolio__student",
-        "requested_by",
-    )
-
-    readonly_fields = (
-        "created_at",
-        "completed_at",
-    )
-
-    date_hierarchy = "created_at"
-
-    @admin.display(
-        description="الطالبة",
-        ordering=(
-            "submission_version__submission__portfolio__student__first_name"
-        ),
-    )
-    def student_name(self, obj):
-        return obj.submission_version.submission.portfolio.student
+    list_per_page = 25
 
 
 @admin.register(AIUsageLog)
 class AIUsageLogAdmin(admin.ModelAdmin):
-    list_display = (
-        "feature_name",
-        "user",
-        "provider_name",
-        "model_name",
-        "input_tokens",
-        "output_tokens",
-        "duration_ms",
-        "was_successful",
-        "created_at",
-    )
+    """إدارة سجلات استخدام الذكاء الاصطناعي."""
 
-    list_filter = (
-        "was_successful",
-        "provider_name",
-        "model_name",
-        "created_at",
-    )
-
-    search_fields = (
-        "feature_name",
-        "user__username",
-        "user__first_name",
-        "user__last_name",
-        "provider_name",
-        "model_name",
-        "error_code",
-    )
-
-    list_select_related = (
-        "user",
-    )
-
-    readonly_fields = (
-        "user",
-        "feature_name",
-        "provider_name",
-        "model_name",
-        "input_tokens",
-        "output_tokens",
-        "duration_ms",
-        "was_successful",
-        "error_code",
-        "created_at",
-    )
-
-    date_hierarchy = "created_at"
-
-    def has_add_permission(self, request):
-        return False
+    list_per_page = 25
 
 
 @admin.register(PerformanceSnapshot)
 class PerformanceSnapshotAdmin(admin.ModelAdmin):
-    list_display = (
-        "student_name",
-        "term",
-        "total_activities",
-        "submitted_activities",
-        "approved_activities",
-        "late_activities",
-        "completion_rate",
-        "average_score",
-        "risk_level",
-        "generated_at",
-    )
+    """إدارة لقطات أداء الطالبات."""
 
-    list_filter = (
-        "risk_level",
-        "term",
-        "portfolio__classroom",
-        "generated_at",
-    )
-
-    search_fields = (
-        "portfolio__student__first_name",
-        "portfolio__student__last_name",
-        "portfolio__student__username",
-    )
-
-    list_select_related = (
-        "portfolio",
-        "portfolio__student",
-        "portfolio__classroom",
-        "term",
-    )
-
-    readonly_fields = (
-        "generated_at",
-    )
-
-    date_hierarchy = "generated_at"
-
-    @admin.display(
-        description="الطالبة",
-        ordering="portfolio__student__first_name",
-    )
-    def student_name(self, obj):
-        return obj.portfolio.student
+    list_per_page = 25
 
 
 @admin.register(Recommendation)
 class RecommendationAdmin(admin.ModelAdmin):
+    """إدارة التوصيات."""
+
+    list_per_page = 25
+
+
+@admin.register(MonthlyHonor)
+class MonthlyHonorAdmin(admin.ModelAdmin):
+    """إدارة عالمة الشهر والشريط المتحرك."""
+
     list_display = (
-        "title",
-        "student_name",
-        "recommendation_type",
-        "priority",
-        "status",
-        "created_by_ai",
-        "reviewed_by",
-        "created_at",
+        "hijri_month_label",
+        "student",
+        "classroom",
+        "average_score",
+        "completion_rate",
+        "improvement_rate",
+        "is_approved",
+        "is_active_in_ticker",
+        "approved_by",
     )
 
     list_filter = (
-        "recommendation_type",
-        "status",
-        "created_by_ai",
-        "priority",
-        "portfolio__classroom",
+        "is_approved",
+        "is_active_in_ticker",
+        "publish_student_name",
+        "classroom__grade_level",
+        "classroom",
+        "month_start",
     )
 
     search_fields = (
-        "title",
-        "description",
-        "portfolio__student__first_name",
-        "portfolio__student__last_name",
-        "lesson__title",
+        "student__first_name",
+        "student__last_name",
+        "student__username",
+        "hijri_month_label",
+        "selection_reason",
+        "ticker_message",
     )
 
     list_select_related = (
-        "portfolio",
-        "portfolio__student",
-        "portfolio__classroom",
-        "lesson",
-        "reviewed_by",
+        "student",
+        "classroom",
+        "classroom__grade_level",
+        "featured_submission",
+        "approved_by",
+    )
+
+    raw_id_fields = (
+        "student",
+        "featured_submission",
     )
 
     readonly_fields = (
+        "approved_by",
+        "approved_at",
         "created_at",
         "updated_at",
     )
 
-    date_hierarchy = "created_at"
-
-    @admin.display(
-        description="الطالبة",
-        ordering="portfolio__student__first_name",
+    fieldsets = (
+        (
+            "بيانات الشهر والطالبة",
+            {
+                "fields": (
+                    "student",
+                    "classroom",
+                    "month_start",
+                    "month_end",
+                    "hijri_month_label",
+                )
+            },
+        ),
+        (
+            "مؤشرات الأداء",
+            {
+                "fields": (
+                    "average_score",
+                    "completion_rate",
+                    "improvement_rate",
+                    "submitted_activities",
+                    "approved_activities",
+                    "featured_activities",
+                    "featured_submission",
+                )
+            },
+        ),
+        (
+            "التكريم والشريط المتحرك",
+            {
+                "fields": (
+                    "selection_reason",
+                    "ticker_message",
+                    "publish_student_name",
+                    "is_approved",
+                    "is_active_in_ticker",
+                )
+            },
+        ),
+        (
+            "بيانات الاعتماد",
+            {
+                "fields": (
+                    "approved_by",
+                    "approved_at",
+                    "created_at",
+                    "updated_at",
+                )
+            },
+        ),
     )
-    def student_name(self, obj):
-        return obj.portfolio.student
+
+    date_hierarchy = "month_start"
+    list_per_page = 25
+
+    def save_model(self, request, obj, form, change):
+        """حفظ بيانات اعتماد عالمة الشهر تلقائيًا."""
+
+        if obj.is_approved:
+            if obj.approved_at is None:
+                obj.approved_at = timezone.now()
+
+            obj.approved_by = request.user
+
+        else:
+            obj.approved_at = None
+            obj.approved_by = None
+            obj.is_active_in_ticker = False
+
+        super().save_model(request, obj, form, change)

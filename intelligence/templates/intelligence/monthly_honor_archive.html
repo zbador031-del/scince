@@ -1,0 +1,162 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+أرشيف عالمة الشهر
+{% endblock %}
+
+{% block content %}
+<style>
+    .monthly-archive {
+        width: min(1180px, 92%);
+        margin: 45px auto;
+    }
+
+    .monthly-archive__header {
+        margin-bottom: 28px;
+        padding: 28px;
+        color: #ffffff;
+        background: linear-gradient(
+            135deg,
+            #075f5b,
+            #11877f
+        );
+        border-radius: 22px;
+        box-shadow: 0 12px 30px rgb(7 95 91 / 18%);
+    }
+
+    .monthly-archive__header h1 {
+        margin: 0 0 10px;
+        color: #ffffff;
+    }
+
+    .monthly-table-wrapper {
+        overflow-x: auto;
+        background: #ffffff;
+        border: 1px solid #d7e6e4;
+        border-radius: 18px;
+        box-shadow: 0 10px 28px rgb(24 75 72 / 10%);
+    }
+
+    .monthly-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: right;
+    }
+
+    .monthly-table th,
+    .monthly-table td {
+        padding: 16px;
+        border-bottom: 1px solid #e5efee;
+        white-space: nowrap;
+    }
+
+    .monthly-table th {
+        color: #ffffff;
+        background: #075f5b;
+    }
+
+    .monthly-table tbody tr:hover {
+        background: #f0fbf9;
+    }
+
+    .report-button {
+        display: inline-block;
+        padding: 9px 16px;
+        color: #ffffff;
+        text-decoration: none;
+        background: #11877f;
+        border-radius: 10px;
+    }
+
+    .report-button:hover {
+        color: #073e3b;
+        background: #e8c45f;
+    }
+
+    .empty-archive {
+        padding: 40px;
+        text-align: center;
+        color: #5d7472;
+    }
+</style>
+
+<main class="monthly-archive">
+    <header class="monthly-archive__header">
+        <h1>🏆 أرشيف عالمة الشهر</h1>
+
+        <p>
+            تقارير شهرية يتم إنشاؤها تلقائيًا بناءً على
+            التقييمات المنشورة والإنجاز والتحسن والأعمال المميزة.
+        </p>
+    </header>
+
+    <div class="monthly-table-wrapper">
+        {% if monthly_honors %}
+            <table class="monthly-table">
+                <thead>
+                    <tr>
+                        <th>الشهر</th>
+                        <th>الطالبة</th>
+                        <th>الفصل</th>
+                        <th>المتوسط</th>
+                        <th>الإنجاز</th>
+                        <th>التحسن</th>
+                        <th>الأعمال المميزة</th>
+                        <th>التقرير</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for honor in monthly_honors %}
+                        <tr>
+                            <td>
+                                {{ honor.hijri_month_label }}
+                            </td>
+
+                            <td>
+                                {% if honor.student.get_full_name %}
+                                    {{ honor.student.get_full_name }}
+                                {% else %}
+                                    {{ honor.student.username }}
+                                {% endif %}
+                            </td>
+
+                            <td>{{ honor.classroom }}</td>
+
+                            <td>
+                                {{ honor.average_score|floatformat:2 }}
+                                من 20
+                            </td>
+
+                            <td>
+                                {{ honor.completion_rate|floatformat:2 }}٪
+                            </td>
+
+                            <td>
+                                {{ honor.improvement_rate|floatformat:2 }}٪
+                            </td>
+
+                            <td>
+                                {{ honor.featured_activities }}
+                            </td>
+
+                            <td>
+                                <a
+                                    class="report-button"
+                                    href="{% url 'intelligence:monthly_honor_report' honor.id %}"
+                                >
+                                    عرض التقرير
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-archive">
+                لا توجد تقارير شهرية حتى الآن.
+            </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

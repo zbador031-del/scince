@@ -1,0 +1,558 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}
+التقرير الفردي للطالبة | دفتر العلوم الذكي
+{% endblock %}
+
+{% block content %}
+<main class="page-container student-report-page">
+
+    <header class="student-report-print-header">
+        <p>
+            المملكة العربية السعودية — وزارة التعليم
+        </p>
+
+        <p>
+            الإدارة العامة للتعليم بعسير —
+            الابتدائية السادسة والثلاثون بخميس مشيط
+        </p>
+
+        <h1>
+            التقرير التحليلي الفردي للطالبة
+        </h1>
+
+        <p>
+            تاريخ التقرير:
+            <span class="student-report-hijri-date"></span>
+        </p>
+    </header>
+
+    <section class="student-report-hero">
+        <div>
+            <span class="student-report-badge">
+                تقرير أداء فردي
+            </span>
+
+            <h1>
+                {{ student.get_full_name|default:student.username }}
+            </h1>
+
+            <p>
+                {{ classroom }}
+                —
+                {{ portfolio.subject }}
+                —
+                {{ portfolio.academic_year }}
+            </p>
+        </div>
+
+        <div class="student-report-actions">
+            <a
+                href="{% url 'intelligence:teacher_analytics' %}"
+                class="student-report-back"
+            >
+                العودة للتحليلات
+            </a>
+
+            <button
+                type="button"
+                class="student-report-print"
+                onclick="window.print()"
+            >
+                🖨️ طباعة وحفظ PDF
+            </button>
+        </div>
+    </section>
+
+    <section class="student-report-metrics">
+        <article class="student-report-metric">
+            <span>📁</span>
+            <strong>{{ total_submissions }}</strong>
+            <h2>إجمالي الأعمال</h2>
+        </article>
+
+        <article class="student-report-metric">
+            <span>✅</span>
+            <strong>{{ approved_count }}</strong>
+            <h2>أعمال معتمدة</h2>
+        </article>
+
+        <article class="student-report-metric">
+            <span>⭐</span>
+            <strong>{{ featured_count }}</strong>
+            <h2>أعمال متميزة</h2>
+        </article>
+
+        <article class="student-report-metric">
+            <span>📊</span>
+            <strong>
+                {{ average_percentage|floatformat:1 }}%
+            </strong>
+            <h2>متوسط الأداء</h2>
+        </article>
+
+        <article class="student-report-metric">
+            <span>🎯</span>
+            <strong>{{ overall_level }}</strong>
+            <h2>مستوى الأداء</h2>
+        </article>
+
+        <article class="student-report-metric">
+            <span>📝</span>
+            <strong>
+                {{ evaluation_rate|floatformat:1 }}%
+            </strong>
+            <h2>نسبة التقييم</h2>
+        </article>
+    </section>
+
+    <section class="student-report-grid">
+        <article class="student-report-panel">
+            <div class="student-report-heading">
+                <div>
+                    <h2>ملخص الأداء</h2>
+                    <p>
+                        قراءة مختصرة لمستوى الطالبة وتطورها.
+                    </p>
+                </div>
+            </div>
+
+            <dl class="student-report-summary">
+                <div>
+                    <dt>الفصل</dt>
+                    <dd>{{ classroom }}</dd>
+                </div>
+
+                <div>
+                    <dt>دفتر الطالبة</dt>
+                    <dd>{{ portfolio.title }}</dd>
+                </div>
+
+                <div>
+                    <dt>الأعمال المسلّمة</dt>
+                    <dd>{{ submitted_count }}</dd>
+                </div>
+
+                <div>
+                    <dt>الأعمال التي تحتاج تعديلًا</dt>
+                    <dd>{{ revision_count }}</dd>
+                </div>
+
+                <div>
+                    <dt>أحدث مستوى</dt>
+                    <dd>
+                        {{ latest_percentage|floatformat:1 }}%
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>اتجاه الأداء</dt>
+                    <dd>{{ trend_label }}</dd>
+                </div>
+
+                <div>
+                    <dt>مقدار التغير</dt>
+                    <dd>
+                        {% if performance_change > 0 %}
+                            +
+                        {% endif %}
+                        {{ performance_change|floatformat:1 }}%
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>استخدام الذكاء الاصطناعي</dt>
+                    <dd>
+                        {{ ai_versions_count }} نسخة
+                    </dd>
+                </div>
+            </dl>
+        </article>
+
+        <article class="student-report-panel">
+            <div class="student-report-heading">
+                <div>
+                    <h2>أحدث تغذية راجعة</h2>
+                    <p>
+                        آخر ملاحظة منشورة للطالبة.
+                    </p>
+                </div>
+            </div>
+
+            {% if latest_feedback %}
+                <blockquote class="student-report-feedback">
+                    {{ latest_feedback.general_feedback }}
+                </blockquote>
+
+                <p class="student-report-feedback-meta">
+                    التقييم:
+                    {{ latest_feedback.total_score|floatformat:2 }}
+                    —
+                    {{ latest_feedback.evaluated_at|date:"Y/m/d" }}
+                </p>
+            {% else %}
+                <div class="student-report-empty">
+                    لا توجد تغذية راجعة منشورة حتى الآن.
+                </div>
+            {% endif %}
+        </article>
+    </section>
+
+    <section class="student-report-panel">
+        <div class="student-report-heading">
+            <div>
+                <h2>تحليل معايير التقييم</h2>
+                <p>
+                    متوسط أداء الطالبة في كل معيار.
+                </p>
+            </div>
+        </div>
+
+        {% if criterion_analytics %}
+            <div class="student-report-table-wrap">
+                <table class="student-report-table">
+                    <thead>
+                        <tr>
+                            <th>المعيار</th>
+                            <th>متوسط الدرجة</th>
+                            <th>النسبة</th>
+                            <th>مستوى الأداء</th>
+                            <th>عدد التقييمات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for criterion in criterion_analytics %}
+                            <tr>
+                                <td>{{ criterion.title }}</td>
+
+                                <td>
+                                    {{ criterion.average_score|floatformat:2 }}
+                                    من
+                                    {{ criterion.maximum_score|floatformat:2 }}
+                                </td>
+
+                                <td>
+                                    <div class="student-report-progress">
+                                        <span
+                                            style="width: {{ criterion.percentage }}%;"
+                                        ></span>
+                                    </div>
+
+                                    <small>
+                                        {{ criterion.percentage|floatformat:1 }}%
+                                    </small>
+                                </td>
+
+                                <td>
+                                    {{ criterion.performance_level }}
+                                </td>
+
+                                <td>
+                                    {{ criterion.evaluation_count }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="student-report-empty">
+                لا توجد درجات معايير منشورة حتى الآن.
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="student-report-grid">
+        <article class="student-report-panel">
+            <div class="student-report-heading">
+                <div>
+                    <h2>نقاط القوة</h2>
+                    <p>
+                        المعايير التي بلغت فيها الطالبة 80% فأعلى.
+                    </p>
+                </div>
+            </div>
+
+            {% if strengths %}
+                <ul class="student-report-insights strengths">
+                    {% for item in strengths %}
+                        <li>
+                            <strong>{{ item.title }}</strong>
+                            <span>
+                                {{ item.percentage|floatformat:1 }}%
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="student-report-empty">
+                    ستظهر نقاط القوة بعد اكتمال التقييمات.
+                </div>
+            {% endif %}
+        </article>
+
+        <article class="student-report-panel">
+            <div class="student-report-heading">
+                <div>
+                    <h2>احتياجات الدعم</h2>
+                    <p>
+                        المعايير التي تقل فيها النسبة عن 60%.
+                    </p>
+                </div>
+            </div>
+
+            {% if support_needs %}
+                <ul class="student-report-insights support">
+                    {% for item in support_needs %}
+                        <li>
+                            <strong>{{ item.title }}</strong>
+                            <span>
+                                {{ item.percentage|floatformat:1 }}%
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="student-report-empty">
+                    لا توجد احتياجات دعم منخفضة حاليًا.
+                </div>
+            {% endif %}
+        </article>
+    </section>
+
+    <section class="student-report-panel">
+        <div class="student-report-heading">
+            <div>
+                <h2>سجل التقييمات</h2>
+                <p>
+                    نتائج الأعمال مرتبة من الأحدث إلى الأقدم.
+                </p>
+            </div>
+        </div>
+
+        {% if evaluation_rows %}
+            <div class="student-report-table-wrap">
+                <table class="student-report-table">
+                    <thead>
+                        <tr>
+                            <th>العمل</th>
+                            <th>الدرجة</th>
+                            <th>النسبة</th>
+                            <th>مستوى الأداء</th>
+                            <th>تاريخ التقييم</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in evaluation_rows %}
+                            <tr>
+                                <td>{{ row.submission.title }}</td>
+
+                                <td>
+                                    {{ row.score|floatformat:2 }}
+                                    من
+                                    {{ row.maximum_score|floatformat:2 }}
+                                </td>
+
+                                <td>
+                                    {{ row.percentage|floatformat:1 }}%
+                                </td>
+
+                                <td>{{ row.performance_level }}</td>
+
+                                <td>
+                                    {{ row.evaluation.evaluated_at|date:"Y/m/d" }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="student-report-empty">
+                لا توجد تقييمات منشورة للطالبة حتى الآن.
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="student-report-panel">
+        <div class="student-report-heading">
+            <div>
+                <h2>توزيع حالات الأعمال</h2>
+                <p>
+                    عدد ونسبة أعمال الطالبة في كل حالة.
+                </p>
+            </div>
+        </div>
+
+        <div class="student-report-statuses">
+            {% for status in status_analytics %}
+                <div class="student-report-status">
+                    <div>
+                        <strong>{{ status.label }}</strong>
+                        <span>
+                            {{ status.count }}
+                            —
+                            {{ status.percentage|floatformat:1 }}%
+                        </span>
+                    </div>
+
+                    <div class="student-report-progress">
+                        <span
+                            style="width: {{ status.percentage }}%;"
+                        ></span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="student-report-grid">
+        <article class="student-report-panel">
+            <div class="student-report-heading">
+                <div>
+                    <h2>أحدث الأعمال</h2>
+                    <p>
+                        آخر الأعمال التي أضافتها الطالبة.
+                    </p>
+                </div>
+            </div>
+
+            {% if recent_submissions %}
+                <ul class="student-report-list">
+                    {% for submission in recent_submissions %}
+                        <li>
+                            <div>
+                                <strong>{{ submission.title }}</strong>
+                                <span>
+                                    {{ submission.get_status_display }}
+                                </span>
+                            </div>
+
+                            <time>
+                                {{ submission.created_at|date:"Y/m/d" }}
+                            </time>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="student-report-empty">
+                    لم تضف الطالبة أعمالًا حتى الآن.
+                </div>
+            {% endif %}
+        </article>
+
+        <article class="student-report-panel">
+            <div class="student-report-heading">
+                <div>
+                    <h2>الشارات التحفيزية</h2>
+                    <p>
+                        الشارات التي حصلت عليها الطالبة.
+                    </p>
+                </div>
+            </div>
+
+            {% if badges %}
+                <ul class="student-report-list">
+                    {% for award in badges %}
+                        <li>
+                            <div>
+                                <strong>
+                                    🏅 {{ award.badge.name }}
+                                </strong>
+
+                                <span>{{ award.reason }}</span>
+                            </div>
+
+                            <time>
+                                {{ award.awarded_at|date:"Y/m/d" }}
+                            </time>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="student-report-empty">
+                    لم تحصل الطالبة على شارات حتى الآن.
+                </div>
+            {% endif %}
+        </article>
+    </section>
+
+    <section
+    class="student-report-panel
+    learning-recommendation
+    recommendation-{{ learning_recommendation.type }}"
+>
+    <div class="student-report-heading">
+        <div>
+            <span class="recommendation-label">
+                توصية تعليمية تلقائية
+            </span>
+
+            <h2>
+                {{ learning_recommendation.title }}
+            </h2>
+
+            <p>
+                {{ learning_recommendation.description }}
+            </p>
+        </div>
+    </div>
+
+    {% if learning_recommendation.focus_criteria %}
+        <div class="recommendation-focus">
+            <strong>المهارات ذات الأولوية:</strong>
+
+            <div>
+                {% for criterion in learning_recommendation.focus_criteria %}
+                    <span>{{ criterion }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <ol class="recommendation-actions">
+        {% for action in learning_recommendation.actions %}
+            <li>{{ action }}</li>
+        {% endfor %}
+    </ol>
+</section>
+
+    <footer class="student-report-print-footer">
+        <p>
+            إعداد المعلمة / بدرية محمد الزهراني
+        </p>
+
+        <p>
+            مديرة المدرسة / نورة الرفاعي
+        </p>
+    </footer>
+</main>
+
+<script>
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+            const formatter =
+                new Intl.DateTimeFormat(
+                    "ar-SA-u-ca-islamic-umalqura",
+                    {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                    }
+                );
+
+            document
+                .querySelectorAll(
+                    ".student-report-hijri-date"
+                )
+                .forEach(function (element) {
+                    element.textContent =
+                        formatter.format(new Date());
+                });
+        }
+    );
+</script>
+{% endblock %}

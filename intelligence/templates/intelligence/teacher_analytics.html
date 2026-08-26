@@ -7,6 +7,159 @@
 {% block content %}
 <main class="page-container">
 
+<header class="analytics-print-header">
+    <p>
+        المملكة العربية السعودية
+        <span>—</span>
+        وزارة التعليم
+    </p>
+
+    <p>
+        الإدارة العامة للتعليم بعسير
+        <span>—</span>
+        الابتدائية السادسة والثلاثون بخميس مشيط
+    </p>
+
+    <h1>
+        تقرير المؤشرات والتحليلات
+    </h1>
+
+    <div class="analytics-print-meta">
+        <p>
+            <strong>نطاق التقرير:</strong>
+
+            {% if selected_classroom %}
+                {% for classroom in filter_classrooms %}
+                    {% if selected_classroom == classroom.id|stringformat:"s" %}
+                        {{ classroom }}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                جميع الصفوف والفصول
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>حالة الأعمال:</strong>
+
+            {% if selected_status %}
+                {% for value, label in status_choices %}
+                    {% if selected_status == value %}
+                        {{ label }}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                جميع الحالات
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>التاريخ:</strong>
+            <span id="analytics-print-hijri-date"></span>
+        </p>
+    </div>
+</header>
+
+    <section
+    class="analytics-panel analytics-filters"
+    aria-labelledby="analytics-filters-title"
+>
+    <div class="page-heading">
+        <div>
+            <h2 id="analytics-filters-title">
+                تصفية التحليلات
+            </h2>
+
+            <p>
+                اختاري الفصل أو حالة العمل لتحديث
+                جميع المؤشرات تلقائيًا.
+            </p>
+        </div>
+    </div>
+
+    <form
+        method="get"
+        class="analytics-filter-form"
+    >
+        <div class="analytics-filter-field">
+            <label for="classroom-filter">
+                الصف والفصل
+            </label>
+
+            <select
+                id="classroom-filter"
+                name="classroom"
+            >
+                <option value="">
+                    جميع الصفوف والفصول
+                </option>
+
+                {% for classroom in filter_classrooms %}
+                    <option
+                        value="{{ classroom.id }}"
+                        {% if selected_classroom == classroom.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ classroom }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="analytics-filter-field">
+            <label for="status-filter">
+                حالة العمل
+            </label>
+
+            <select
+                id="status-filter"
+                name="status"
+            >
+                <option value="">
+                    جميع الحالات
+                </option>
+
+                {% for value, label in status_choices %}
+                    <option
+                        value="{{ value }}"
+                        {% if selected_status == value %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="analytics-filter-actions">
+            <button
+                type="submit"
+                class="analytics-filter-submit"
+            >
+                تطبيق الفلاتر
+            </button>
+            <button
+    type="button"
+    class="analytics-print-button"
+    onclick="window.print()"
+>
+    🖨️ طباعة التقرير
+</button>
+
+            {% if filters_active %}
+                <a
+                    href="{{ request.path }}"
+                    class="analytics-filter-reset"
+                >
+                    إلغاء الفلاتر
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+
     <section class="analytics-header">
         <div>
             <span class="portfolio-label">
@@ -320,44 +473,93 @@
 
         {% if recent_submissions %}
             <div class="recent-submissions-list">
-                {% for submission in recent_submissions %}
-                    <a
-                        href="{% url 'portfolios:teacher_submission_detail' submission.id %}"
-                        class="recent-submission-item"
-                    >
-                        <div class="recent-submission-icon">
-                            📄
-                        </div>
+{% for submission in recent_submissions %}
+    <div class="recent-submission-row">
+        <a
+            href="{% url 'portfolios:teacher_submission_detail' submission.id %}"
+            class="recent-submission-item"
+        >
+            <div class="recent-submission-icon">
+                📄
+            </div>
 
-                        <div>
-                            <strong>{{ submission.title }}</strong>
+            <div class="recent-submission-content">
+                <strong>
+                    {{ submission.title }}
+                </strong>
 
-                            <span>
-                                {{ submission.portfolio.student.get_full_name|default:submission.portfolio.student.username }}
-                                —
-                                {{ submission.portfolio.classroom }}
-                            </span>
-                        </div>
+                <span>
+                    {{ submission.portfolio.student.get_full_name|default:submission.portfolio.student.username }}
+                    —
+                    {{ submission.portfolio.classroom }}
+                </span>
+            </div>
 
-                        <span
-                            class="submission-status
-                            status-{{ submission.status }}"
-                        >
-                            {{ submission.get_status_display }}
-                        </span>
-                    </a>
-                {% endfor %}
+            <span
+                class="submission-status
+                status-{{ submission.status }}"
+            >
+                {{ submission.get_status_display }}
+            </span>
+        </a>
+
+        <a
+            href="{% url 'intelligence:student_analytics_report' submission.portfolio.id %}"
+            class="student-individual-report-link"
+        >
+            📊 التقرير الفردي
+        </a>
+    </div>
+{% endfor %}
             </div>
         {% else %}
             <div class="empty-state">
                 <span>📭</span>
                 <h3>لا توجد أعمال بعد</h3>
                 <p>
-                    ستظهر أحدث أعمال الطالبات هنا بعد رفعها.
+                    ستظهر أحدث أعمال الطالبات هنا بعد رفعها.<a
+    href="{% url 'intelligence:student_reports_list' %}"
+    class="button button-secondary"
+>
+    📊 تقارير الطالبات
+</a>
                 </p>
             </div>
         {% endif %}
     </section>
 
 </main>
+
+<script>
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+            const dateElement = document.getElementById(
+                "analytics-print-hijri-date"
+            );
+
+            if (!dateElement) {
+                return;
+            }
+
+            try {
+                const hijriFormatter =
+                    new Intl.DateTimeFormat(
+                        "ar-SA-u-ca-islamic-umalqura",
+                        {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                        }
+                    );
+
+                dateElement.textContent =
+                    hijriFormatter.format(new Date());
+            } catch (error) {
+                dateElement.textContent =
+                    "التاريخ الهجري غير متاح";
+            }
+        }
+    );
+</script>
 {% endblock %}

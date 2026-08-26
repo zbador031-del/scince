@@ -96,6 +96,28 @@
             </nav>
         </div>
     </header>
+    {% if monthly_honor_ticker %}
+<section
+    class="honor-ticker"
+    aria-label="شريط عالمة الشهر"
+>
+    <div class="honor-ticker__badge">
+        ⭐ عالمة الشهر
+    </div>
+
+    <div class="honor-ticker__window">
+        <div class="honor-ticker__content">
+            <span>
+                {{ monthly_honor_ticker.public_ticker_text }}
+            </span>
+
+            <span aria-hidden="true">
+                {{ monthly_honor_ticker.public_ticker_text }}
+            </span>
+        </div>
+    </div>
+</section>
+{% endif %}
 
     {% if messages %}
         <section

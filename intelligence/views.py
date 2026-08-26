@@ -57,20 +57,77 @@ def teacher_analytics(request):
         _teacher_classroom_ids(request.user)
     )
 
+    # قراءة الفلاتر من رابط الصفحة
+    selected_classroom = request.GET.get(
+        "classroom",
+        "",
+    ).strip()
+
+    selected_status = request.GET.get(
+        "status",
+        "",
+    ).strip()
+
+    valid_statuses = {
+        value
+        for value, _ in Submission.Status.choices
+    }
+
+    # التحقق من أن الفصل تابع للمعلمة
+    filtered_classroom_ids = classroom_ids
+
+    if (
+        selected_classroom.isdigit()
+        and int(selected_classroom) in classroom_ids
+    ):
+        filtered_classroom_ids = [
+            int(selected_classroom)
+        ]
+    else:
+        selected_classroom = ""
+
+    # التحقق من صحة حالة العمل
+    if selected_status not in valid_statuses:
+        selected_status = ""
+
+    # جميع فصول المعلمة لعرضها في قائمة الفلترة
+    filter_classrooms = Classroom.objects.filter(
+        id__in=classroom_ids
+    ).select_related(
+        "grade_level",
+        "academic_year",
+    ).order_by(
+        "grade_level__order",
+        "name",
+    )
+
+    # الأعمال التي تدخل في التحليل
     submissions = Submission.objects.filter(
-        portfolio__classroom_id__in=classroom_ids,
+        portfolio__classroom_id__in=(
+            filtered_classroom_ids
+        ),
         portfolio__is_active=True,
     )
 
+    # تطبيق فلتر حالة العمل
+    if selected_status:
+        submissions = submissions.filter(
+            status=selected_status
+        )
+
     evaluations = Evaluation.objects.filter(
-        submission_version__submission__in=submissions
+        submission_version__submission__in=(
+            submissions
+        )
     ).exclude(
         status=Evaluation.Status.DRAFT
     )
 
     total_students = (
         Enrollment.objects.filter(
-            classroom_id__in=classroom_ids,
+            classroom_id__in=(
+                filtered_classroom_ids
+            ),
             status=Enrollment.Status.ACTIVE,
         )
         .values("student_id")
@@ -132,7 +189,11 @@ def teacher_analytics(request):
 
     completion_rate = (
         round(
-            (students_with_work / total_students) * 100,
+            (
+                students_with_work
+                / total_students
+            )
+            * 100,
             1,
         )
         if total_students
@@ -168,7 +229,11 @@ def teacher_analytics(request):
 
         percentage = (
             round(
-                (count / total_submissions) * 100,
+                (
+                    count
+                    / total_submissions
+                )
+                * 100,
                 1,
             )
             if total_submissions
@@ -184,14 +249,9 @@ def teacher_analytics(request):
             }
         )
 
-    classrooms = Classroom.objects.filter(
-        id__in=classroom_ids
-    ).select_related(
-        "grade_level",
-        "academic_year",
-    ).order_by(
-        "grade_level__order",
-        "name",
+    # الفصول التي تدخل في المقارنة
+    classrooms = filter_classrooms.filter(
+        id__in=filtered_classroom_ids
     )
 
     classroom_analytics = []
@@ -335,6 +395,16 @@ def teacher_analytics(request):
         "status_analytics": status_analytics,
         "classroom_analytics": classroom_analytics,
         "recent_submissions": recent_submissions,
+
+        # بيانات الفلاتر
+        "filter_classrooms": filter_classrooms,
+        "status_choices": Submission.Status.choices,
+        "selected_classroom": selected_classroom,
+        "selected_status": selected_status,
+        "filters_active": bool(
+            selected_classroom
+            or selected_status
+        ),
     }
 
     return render(
