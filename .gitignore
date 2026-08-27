@@ -13,3 +13,7 @@ student_accounts_*.xlsx
 *.xlsx
 # نسخ احتياطية لبيانات الطالبات
 backups/
+
+# Temporary deployment data export
+deployment_data.json
+deployment_data.json.gz
