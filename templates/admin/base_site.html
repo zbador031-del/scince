@@ -54,19 +54,24 @@
         }
 
         .admin-honor-content {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             width: max-content;
             min-width: max-content;
+            direction: ltr;
             font-size: 1rem;
             font-weight: 700;
             white-space: nowrap;
-            animation: admin-honor-move 20s linear infinite;
+            animation: admin-honor-move 40s linear infinite;
         }
 
-        .admin-honor-content span {
-            display: inline-block;
-            padding-inline: 55px;
+        .admin-honor-group {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 40px;
+            padding-inline: 28px;
+            direction: rtl;
         }
 
         .admin-honor-ticker:hover .admin-honor-content {
@@ -75,31 +80,43 @@
 
         @keyframes admin-honor-move {
             from {
-                transform: translateX(-50%);
+                transform: translate3d(0, 0, 0);
             }
 
             to {
-                transform: translateX(0);
+                transform: translate3d(-50%, 0, 0);
             }
         }
 
         @media (max-width: 700px) {
             .admin-honor-badge {
-                min-width: 120px;
-                padding: 9px;
-                font-size: 0.85rem;
+                min-width: 105px;
+                max-width: 105px;
+                padding: 8px;
+                font-size: 0.78rem;
+                line-height: 1.35;
+                text-align: center;
+                white-space: normal;
             }
 
             .admin-honor-content {
                 font-size: 0.88rem;
-                animation-duration: 16s;
+                animation-duration: 40s;
+            }
+
+            .admin-honor-group {
+                gap: 26px;
+                padding-inline: 18px;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
             .admin-honor-content {
                 animation: none;
-                white-space: normal;
+            }
+
+            .admin-honor-group:last-child {
+                display: none;
             }
         }
     </style>
@@ -116,24 +133,37 @@
 {% block nav-global %}
     {{ block.super }}
 
-    {% if monthly_honor_ticker %}
+    {% if featured_student_names or monthly_honor_ticker %}
         <section
             class="admin-honor-ticker"
-            aria-label="شريط عالمة الشهر"
+            aria-label="شريط التميز"
         >
             <div class="admin-honor-badge">
-                ⭐ عالمة الشهر
+                {% if featured_student_names %}
+                    🏅 أعمال متميزة
+                {% else %}
+                    ⭐ عالمة الشهر
+                {% endif %}
             </div>
 
             <div class="admin-honor-window">
                 <div class="admin-honor-content">
-                    <span>
-                        {{ monthly_honor_ticker.public_ticker_text }}
-                    </span>
-
-                    <span aria-hidden="true">
-                        {{ monthly_honor_ticker.public_ticker_text }}
-                    </span>
+                    {% for copy in "12" %}
+                        <div
+                            class="admin-honor-group"
+                            {% if not forloop.first %}aria-hidden="true"{% endif %}
+                        >
+                            {% if featured_student_names %}
+                                {% for student_name in featured_student_names %}
+                                    <span>⭐ {{ student_name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span>
+                                    {{ monthly_honor_ticker.public_ticker_text }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </section>
