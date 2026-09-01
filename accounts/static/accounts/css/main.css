@@ -4347,6 +4347,7 @@ progress::-moz-progress-bar {
     font-size: 1.05rem;
     white-space: nowrap;
     animation: honor-ticker-move 40s linear infinite;
+    animation-play-state: running;
     will-change: transform;
 }
 
@@ -4361,10 +4362,6 @@ progress::-moz-progress-bar {
 
 .honor-ticker__name {
     display: inline-block;
-}
-
-.honor-ticker:hover .honor-ticker__content {
-    animation-play-state: paused;
 }
 
 @keyframes honor-ticker-move {
@@ -4400,15 +4397,5 @@ progress::-moz-progress-bar {
     .honor-ticker__group {
         gap: 28px;
         padding-inline: 20px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .honor-ticker__content {
-        animation: none;
-    }
-
-    .honor-ticker__group:last-child {
-        display: none;
     }
 }
