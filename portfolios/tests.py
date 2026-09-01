@@ -40,6 +40,14 @@ class MixedMediaCloudinaryStorageTests(SimpleTestCase):
             "video",
         )
 
+    def test_video_delivery_url_is_https(self):
+        url = self.storage.url(
+            "student_videos/portfolios/submissions/experiment"
+        )
+
+        self.assertTrue(url.startswith("https://"))
+        self.assertIn("/video/upload/", url)
+
     @patch("scince.storage.cloudinary.uploader.upload")
     def test_video_upload_uses_video_resource_type(self, upload_mock):
         upload_mock.return_value = {
