@@ -151,36 +151,62 @@
 
                                 <div class="attachment-list">
                                     {% for attachment in version.attachments.all %}
-                                        <a
-                                            href="{{ attachment.file.url }}"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="attachment-item"
-                                        >
-                                            <span class="attachment-icon">
-                                                {% if attachment.media_type == "image" %}
-                                                    🖼️
-                                                {% elif attachment.media_type == "video" %}
-                                                    🎬
-                                                {% elif attachment.media_type == "audio" %}
-                                                    🎧
-                                                {% elif attachment.media_type == "presentation" %}
-                                                    📊
-                                                {% else %}
-                                                    📄
-                                                {% endif %}
-                                            </span>
+                                        {% if attachment.media_type == "video" %}
+                                            <div class="student-media-card">
+                                                <video controls playsinline preload="metadata">
+                                                    <source
+                                                        src="{{ attachment.file.url }}"
+                                                        type="{{ attachment.mime_type|default:'video/mp4' }}"
+                                                    >
+                                                    المتصفح لا يدعم تشغيل الفيديو.
+                                                </video>
 
-                                            <span>
-                                                <strong>
-                                                    {{ attachment.original_filename }}
-                                                </strong>
+                                                <a
+                                                    href="{{ attachment.file.url }}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="attachment-item"
+                                                >
+                                                    <span class="attachment-icon">🎬</span>
+                                                    <span>
+                                                        <strong>{{ attachment.original_filename }}</strong>
+                                                        <small>
+                                                            مشاهدة الفيديو —
+                                                            {{ attachment.size_bytes|filesizeformat }}
+                                                        </small>
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        {% else %}
+                                            <a
+                                                href="{{ attachment.file.url }}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="attachment-item"
+                                            >
+                                                <span class="attachment-icon">
+                                                    {% if attachment.media_type == "image" %}
+                                                        🖼️
+                                                    {% elif attachment.media_type == "audio" %}
+                                                        🎧
+                                                    {% elif attachment.media_type == "presentation" %}
+                                                        📊
+                                                    {% else %}
+                                                        📄
+                                                    {% endif %}
+                                                </span>
 
-                                                <small>
-                                                    {{ attachment.size_bytes|filesizeformat }}
-                                                </small>
-                                            </span>
-                                        </a>
+                                                <span>
+                                                    <strong>
+                                                        {{ attachment.original_filename }}
+                                                    </strong>
+
+                                                    <small>
+                                                        {{ attachment.size_bytes|filesizeformat }}
+                                                    </small>
+                                                </span>
+                                            </a>
+                                        {% endif %}
                                     {% empty %}
                                         <p>لا يوجد ملف مرفق.</p>
                                     {% endfor %}
