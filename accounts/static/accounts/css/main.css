@@ -4335,6 +4335,7 @@ progress::-moz-progress-bar {
     flex: 1;
     align-items: center;
     overflow: hidden;
+    direction: ltr;
 }
 
 .honor-ticker__content {
@@ -4349,6 +4350,10 @@ progress::-moz-progress-bar {
     animation: honor-ticker-move 32s linear infinite;
     animation-play-state: running;
     will-change: transform;
+}
+
+.honor-ticker__content[data-ticker-running="true"] {
+    animation: none;
 }
 
 .honor-ticker__group {

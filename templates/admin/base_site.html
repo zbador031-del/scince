@@ -51,6 +51,7 @@
             flex: 1;
             align-items: center;
             overflow: hidden;
+            direction: ltr;
         }
 
         .admin-honor-content {
@@ -64,6 +65,10 @@
             white-space: nowrap;
             animation: admin-honor-move 32s linear infinite;
             animation-play-state: running;
+        }
+
+        .admin-honor-content[data-ticker-running="true"] {
+            animation: none;
         }
 
         .admin-honor-group {
@@ -108,6 +113,14 @@
         }
 
     </style>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script
+        src="{% static 'accounts/js/main.js' %}"
+        defer
+    ></script>
 {% endblock %}
 
 {% block branding %}

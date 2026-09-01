@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 
 from django.core.cache import cache
 from django.db import DatabaseError
@@ -60,17 +59,15 @@ def monthly_honor_ticker(request):
             .first()
         )
 
-        featured_cutoff = timezone.now() - timedelta(days=7)
         featured_submissions = (
             Submission.objects.filter(
                 Q(is_featured=True)
-                | Q(status=Submission.Status.FEATURED),
-                updated_at__gte=featured_cutoff,
+                | Q(status=Submission.Status.FEATURED)
             )
             .select_related("portfolio__student")
             .prefetch_related("collaborators")
             .order_by(
-                "updated_at",
+                "-updated_at",
                 "pk",
             )
         )
