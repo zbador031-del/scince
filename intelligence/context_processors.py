@@ -72,13 +72,19 @@ def monthly_honor_ticker(request):
             )
         )
 
+        seen_student_ids = set()
+
         for submission in featured_submissions:
             students = [submission.portfolio.student]
             students.extend(submission.collaborators.all())
 
-            # يظهر الاسم مرة عن كل عمل متميز؛ فإذا تميز للطالبة
-            # أكثر من عمل يظهر اسمها بعدد تلك الأعمال.
+            # يظهر اسم كل طالبة مرة واحدة مهما تعددت أعمالها
+            # المتميزة أو مشاركاتها في الأعمال الجماعية.
             for student in students:
+                if student.pk in seen_student_ids:
+                    continue
+
+                seen_student_ids.add(student.pk)
                 featured_student_names.append(
                     student.get_full_name().strip()
                     or student.username
