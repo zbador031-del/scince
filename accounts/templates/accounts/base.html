@@ -96,24 +96,39 @@
             </nav>
         </div>
     </header>
-    {% if monthly_honor_ticker %}
+    {% if featured_student_names or monthly_honor_ticker %}
 <section
     class="honor-ticker"
-    aria-label="شريط عالمة الشهر"
+    aria-label="شريط التميز"
 >
     <div class="honor-ticker__badge">
-        ⭐ عالمة الشهر
+        {% if featured_student_names %}
+            🏅 أعمال متميزة
+        {% else %}
+            ⭐ عالمة الشهر
+        {% endif %}
     </div>
 
     <div class="honor-ticker__window">
         <div class="honor-ticker__content">
-            <span>
-                {{ monthly_honor_ticker.public_ticker_text }}
-            </span>
-
-            <span aria-hidden="true">
-                {{ monthly_honor_ticker.public_ticker_text }}
-            </span>
+            {% for copy in "12" %}
+                <div
+                    class="honor-ticker__group"
+                    {% if not forloop.first %}aria-hidden="true"{% endif %}
+                >
+                    {% if featured_student_names %}
+                        {% for student_name in featured_student_names %}
+                            <span class="honor-ticker__name">
+                                ⭐ {{ student_name }}
+                            </span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="honor-ticker__name">
+                            {{ monthly_honor_ticker.public_ticker_text }}
+                        </span>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     </div>
 </section>
