@@ -4346,7 +4346,7 @@ progress::-moz-progress-bar {
     font-weight: 700;
     font-size: 1.05rem;
     white-space: nowrap;
-    animation: honor-ticker-move 40s linear infinite;
+    animation: honor-ticker-move 32s linear infinite;
     animation-play-state: running;
     will-change: transform;
 }
@@ -4355,8 +4355,8 @@ progress::-moz-progress-bar {
     display: inline-flex;
     flex: 0 0 auto;
     align-items: center;
-    gap: 44px;
-    padding-inline: 32px;
+    gap: 32px;
+    padding-inline: 8px;
     direction: rtl;
 }
 
@@ -4391,11 +4391,11 @@ progress::-moz-progress-bar {
 
     .honor-ticker__content {
         font-size: 0.88rem;
-        animation-duration: 40s;
+        animation-duration: 32s;
     }
 
     .honor-ticker__group {
-        gap: 28px;
-        padding-inline: 20px;
+        gap: 24px;
+        padding-inline: 6px;
     }
 }
