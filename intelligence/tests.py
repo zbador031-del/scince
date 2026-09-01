@@ -1,7 +1,8 @@
-from datetime import date
+from datetime import date, timedelta
 from unittest.mock import patch
 
 from django.test import RequestFactory, TestCase
+from django.utils import timezone
 
 from academics.models import (
     AcademicYear,
@@ -41,6 +42,7 @@ class FeaturedStudentTickerTests(TestCase):
         )
         student = User.objects.create_user(
             username="student1",
+            email="student1@example.com",
             first_name="ريم",
             last_name="الزهراني",
             role=User.Role.STUDENT,
@@ -52,23 +54,47 @@ class FeaturedStudentTickerTests(TestCase):
             academic_year=academic_year,
         )
 
-        # يجب أن يظهر الاسم مرة واحدة ولو تعددت أعمال الطالبة المتميزة.
-        Submission.objects.create(
+        self.first_featured = Submission.objects.create(
             portfolio=portfolio,
             title="عمل أول",
             is_featured=True,
         )
-        Submission.objects.create(
+        self.second_featured = Submission.objects.create(
             portfolio=portfolio,
             title="عمل ثانٍ",
             status=Submission.Status.FEATURED,
         )
 
+        collaborator = User.objects.create_user(
+            username="student2",
+            email="student2@example.com",
+            first_name="سارة",
+            last_name="الشهري",
+            role=User.Role.STUDENT,
+        )
+        self.first_featured.collaborators.add(collaborator)
+
+        old_featured = Submission.objects.create(
+            portfolio=portfolio,
+            title="عمل قديم",
+            is_featured=True,
+        )
+        Submission.objects.filter(pk=old_featured.pk).update(
+            updated_at=timezone.now() - timedelta(days=8)
+        )
+
     @patch("intelligence.context_processors.cache.get", return_value=True)
-    def test_all_featured_students_are_listed_once(self, _cache_get):
+    def test_every_recent_featured_work_and_collaborator_is_listed(
+        self,
+        _cache_get,
+    ):
         context = monthly_honor_ticker(RequestFactory().get("/"))
 
-        self.assertEqual(
+        self.assertCountEqual(
             context["featured_student_names"],
-            ["ريم الزهراني"],
+            [
+                "ريم الزهراني",
+                "سارة الشهري",
+                "ريم الزهراني",
+            ],
         )
