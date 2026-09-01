@@ -97,3 +97,21 @@ class FeaturedStudentTickerTests(TestCase):
                 "سارة الشهري",
             ],
         )
+
+    @patch(
+        "intelligence.context_processors._get_featured_student_names",
+        side_effect=RuntimeError("بيانات شريط غير صالحة"),
+    )
+    @patch(
+        "intelligence.context_processors._get_monthly_honor",
+        side_effect=RuntimeError("بيانات تكريم غير صالحة"),
+    )
+    def test_ticker_failure_never_breaks_site_pages(
+        self,
+        _monthly_honor,
+        _featured_names,
+    ):
+        context = monthly_honor_ticker(RequestFactory().get("/"))
+
+        self.assertIsNone(context["monthly_honor_ticker"])
+        self.assertEqual(context["featured_student_names"], [])
