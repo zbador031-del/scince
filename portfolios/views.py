@@ -1,6 +1,8 @@
 import mimetypes
+import logging
 from pathlib import Path
 
+from cloudinary.exceptions import Error as CloudinaryError
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -19,6 +21,9 @@ from .models import (
     Submission,
     SubmissionVersion,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def _ensure_student(user):
@@ -168,64 +173,76 @@ def upload_submission(request):
                 or "application/octet-stream"
             )
 
-            with transaction.atomic():
-                submission = Submission.objects.create(
-                    portfolio=portfolio,
-                    section=form.cleaned_data.get(
-                        "section"
+            try:
+                with transaction.atomic():
+                    submission = Submission.objects.create(
+                        portfolio=portfolio,
+                        section=form.cleaned_data.get(
+                            "section"
+                        ),
+                        title=form.cleaned_data[
+                            "title"
+                        ].strip(),
+                        description=form.cleaned_data[
+                            "description"
+                        ].strip(),
+                        status=Submission.Status.SUBMITTED,
+                        submitted_at=timezone.now(),
+                    )
+
+                    version = SubmissionVersion.objects.create(
+                        submission=submission,
+                        version_number=1,
+                        reflection=form.cleaned_data[
+                            "reflection"
+                        ].strip(),
+                        ai_used=form.cleaned_data[
+                            "ai_used"
+                        ],
+                        ai_tools=form.cleaned_data[
+                            "ai_tools"
+                        ].strip(),
+                        ai_usage_description=form.cleaned_data[
+                            "ai_usage_description"
+                        ].strip(),
+                        is_current=True,
+                    )
+
+                    Attachment.objects.create(
+                        version=version,
+                        file=uploaded_file,
+                        media_type=form.cleaned_data[
+                            "media_type"
+                        ],
+                        caption=form.cleaned_data[
+                            "caption"
+                        ].strip(),
+                        original_filename=Path(
+                            uploaded_file.name
+                        ).name,
+                        mime_type=detected_mime_type[:100],
+                        size_bytes=uploaded_file.size,
+                    )
+            except (CloudinaryError, OSError):
+                logger.exception(
+                    "تعذر رفع مرفق دفتر الطالبة إلى التخزين السحابي."
+                )
+                form.add_error(
+                    "file",
+                    (
+                        "تعذر رفع الملف حاليًا. تأكدي أن حجمه أقل من "
+                        "100 ميجابايت، ثم أعيدي المحاولة."
                     ),
-                    title=form.cleaned_data[
-                        "title"
-                    ].strip(),
-                    description=form.cleaned_data[
-                        "description"
-                    ].strip(),
-                    status=Submission.Status.SUBMITTED,
-                    submitted_at=timezone.now(),
+                )
+            else:
+                messages.success(
+                    request,
+                    "تم رفع العمل وإرساله إلى المعلمة بنجاح.",
                 )
 
-                version = SubmissionVersion.objects.create(
-                    submission=submission,
-                    version_number=1,
-                    reflection=form.cleaned_data[
-                        "reflection"
-                    ].strip(),
-                    ai_used=form.cleaned_data[
-                        "ai_used"
-                    ],
-                    ai_tools=form.cleaned_data[
-                        "ai_tools"
-                    ].strip(),
-                    ai_usage_description=form.cleaned_data[
-                        "ai_usage_description"
-                    ].strip(),
-                    is_current=True,
+                return redirect(
+                    "portfolios:student_portfolio"
                 )
-
-                Attachment.objects.create(
-                    version=version,
-                    file=uploaded_file,
-                    media_type=form.cleaned_data[
-                        "media_type"
-                    ],
-                    caption=form.cleaned_data[
-                        "caption"
-                    ].strip(),
-                    original_filename=Path(
-                        uploaded_file.name
-                    ).name,
-                    mime_type=detected_mime_type[:100],
-                    size_bytes=uploaded_file.size,
-                )
-
-            messages.success(
-                request,
-                "تم رفع العمل وإرساله إلى المعلمة بنجاح.",
-            )
-
-            return redirect(
-                "portfolios:student_portfolio"
-            )
     else:
         form = StudentSubmissionForm(
             portfolio=portfolio
