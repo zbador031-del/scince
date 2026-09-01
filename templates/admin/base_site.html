@@ -63,6 +63,7 @@
             font-weight: 700;
             white-space: nowrap;
             animation: admin-honor-move 40s linear infinite;
+            animation-play-state: running;
         }
 
         .admin-honor-group {
@@ -72,10 +73,6 @@
             gap: 40px;
             padding-inline: 28px;
             direction: rtl;
-        }
-
-        .admin-honor-ticker:hover .admin-honor-content {
-            animation-play-state: paused;
         }
 
         @keyframes admin-honor-move {
@@ -110,15 +107,6 @@
             }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            .admin-honor-content {
-                animation: none;
-            }
-
-            .admin-honor-group:last-child {
-                display: none;
-            }
-        }
     </style>
 {% endblock %}
 
