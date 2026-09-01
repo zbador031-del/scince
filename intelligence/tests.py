@@ -84,7 +84,7 @@ class FeaturedStudentTickerTests(TestCase):
         )
 
     @patch("intelligence.context_processors.cache.get", return_value=True)
-    def test_every_featured_work_and_collaborator_is_listed(
+    def test_each_featured_student_and_collaborator_is_listed_once(
         self,
         _cache_get,
     ):
@@ -95,7 +95,5 @@ class FeaturedStudentTickerTests(TestCase):
             [
                 "ريم الزهراني",
                 "سارة الشهري",
-                "ريم الزهراني",
-                "ريم الزهراني",
             ],
         )
