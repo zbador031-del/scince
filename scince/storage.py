@@ -26,6 +26,19 @@ class MixedMediaCloudinaryStorage(MediaCloudinaryStorage):
         "raw": "student_files",
     }
 
+    def _prepend_prefix(self, name):
+        """Do not place the media prefix before an existing type marker."""
+
+        normalized_name = str(name).replace("\\", "/").lstrip("/")
+
+        if any(
+            normalized_name.startswith(f"{folder}/")
+            for folder in self.TYPE_FOLDERS.values()
+        ):
+            return normalized_name
+
+        return super()._prepend_prefix(normalized_name)
+
     def _get_resource_type(self, name):
         normalized_name = str(name).replace("\\", "/").lower().lstrip("/")
 
@@ -66,3 +79,14 @@ class MixedMediaCloudinaryStorage(MediaCloudinaryStorage):
             options["folder"] = folder
 
         return cloudinary.uploader.upload(content, **options)
+
+    def _get_url(self, name):
+        """Build HTTPS delivery URLs so browsers never block student media."""
+
+        resource_type = self._get_resource_type(name)
+        name = self._prepend_prefix(name)
+        resource = cloudinary.CloudinaryResource(
+            name,
+            default_resource_type=resource_type,
+        )
+        return resource.build_url(secure=True)
