@@ -1,11 +1,11 @@
 import logging
+from datetime import timedelta
 
 from django.core.cache import cache
 from django.db import DatabaseError
 from django.db.models import Q
 from django.utils import timezone
 
-from accounts.models import User
 from portfolios.models import Submission
 
 from .models import MonthlyHonor
@@ -60,29 +60,32 @@ def monthly_honor_ticker(request):
             .first()
         )
 
-        featured_students = (
-            User.objects.filter(role=User.Role.STUDENT)
-            .filter(
-                Q(portfolios__submissions__is_featured=True)
-                | Q(
-                    portfolios__submissions__status=(
-                        Submission.Status.FEATURED
-                    )
-                )
+        featured_cutoff = timezone.now() - timedelta(days=7)
+        featured_submissions = (
+            Submission.objects.filter(
+                Q(is_featured=True)
+                | Q(status=Submission.Status.FEATURED),
+                updated_at__gte=featured_cutoff,
             )
+            .select_related("portfolio__student")
+            .prefetch_related("collaborators")
             .order_by(
-                "first_name",
-                "last_name",
-                "username",
+                "updated_at",
+                "pk",
             )
-            .distinct()
         )
 
-        for student in featured_students:
-            featured_student_names.append(
-                student.get_full_name().strip()
-                or student.username
-            )
+        for submission in featured_submissions:
+            students = [submission.portfolio.student]
+            students.extend(submission.collaborators.all())
+
+            # يظهر الاسم مرة عن كل عمل متميز؛ فإذا تميز للطالبة
+            # أكثر من عمل يظهر اسمها بعدد تلك الأعمال.
+            for student in students:
+                featured_student_names.append(
+                    student.get_full_name().strip()
+                    or student.username
+                )
 
     except DatabaseError:
         logger.exception(
