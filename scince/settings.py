@@ -299,8 +299,8 @@ STORAGES = {
 if CLOUDINARY_URL:
     STORAGES["default"] = {
         "BACKEND": (
-            "cloudinary_storage.storage."
-            "MediaCloudinaryStorage"
+            "scince.storage."
+            "MixedMediaCloudinaryStorage"
         ),
     }
 else:
