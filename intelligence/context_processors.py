@@ -2,7 +2,11 @@ import logging
 
 from django.core.cache import cache
 from django.db import DatabaseError
+from django.db.models import Q
 from django.utils import timezone
+
+from accounts.models import User
+from portfolios.models import Submission
 
 from .models import MonthlyHonor
 from .services.monthly_honor import generate_monthly_honor
@@ -24,6 +28,8 @@ def monthly_honor_ticker(request):
     cache_key = (
         f"monthly_honor_calculation_{today.isoformat()}"
     )
+
+    featured_student_names = []
 
     try:
         if cache.get(cache_key) is None:
@@ -54,6 +60,30 @@ def monthly_honor_ticker(request):
             .first()
         )
 
+        featured_students = (
+            User.objects.filter(role=User.Role.STUDENT)
+            .filter(
+                Q(portfolios__submissions__is_featured=True)
+                | Q(
+                    portfolios__submissions__status=(
+                        Submission.Status.FEATURED
+                    )
+                )
+            )
+            .order_by(
+                "first_name",
+                "last_name",
+                "username",
+            )
+            .distinct()
+        )
+
+        for student in featured_students:
+            featured_student_names.append(
+                student.get_full_name().strip()
+                or student.username
+            )
+
     except DatabaseError:
         logger.exception(
             "تعذر احتساب أو تحميل عالمة الشهر."
@@ -63,4 +93,5 @@ def monthly_honor_ticker(request):
 
     return {
         "monthly_honor_ticker": monthly_honor,
+        "featured_student_names": featured_student_names,
     }
